@@ -1140,6 +1140,19 @@ function GuideModal({
           </div>
         </div>
 
+        <div className="guide-section-title">{t.guide.featureTitle}</div>
+        <div className="feature-grid">
+          {t.guide.features.map((f, i) => (
+            <div className="feature-card" key={i}>
+              <span className="feature-emoji">{f.emoji}</span>
+              <div>
+                <div className="feature-name">{f.name}</div>
+                <div className="feature-desc">{f.desc}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+
         <div className="guide-section-title">{t.guide.whenTitle}</div>
         <div className="guide-scenarios">
           {t.scenarios.map((s, i) => (
@@ -1170,6 +1183,24 @@ function GuideModal({
             <span className="scenario-cmd">{t.guide.memoryStep2.command}</span>
           </button>
           <div className="memory-note">{t.guide.memoryNote}</div>
+        </div>
+
+        <div className="guide-section-title">{t.guide.irTitle}</div>
+        <div className="memory-guide">
+          <p className="memory-desc">{t.guide.irDesc}</p>
+          <button className="scenario-card step" onClick={() => onPick(t.guide.irStep.command)}>
+            <span className="scenario-label">{t.guide.irStep.label}</span>
+            <span className="scenario-cmd">{t.guide.irStep.command}</span>
+          </button>
+        </div>
+
+        <div className="guide-section-title">{t.guide.grantTitle}</div>
+        <div className="memory-guide">
+          <p className="memory-desc">{t.guide.grantDesc}</p>
+          <button className="scenario-card step" onClick={() => onPick(t.guide.grantStep.command)}>
+            <span className="scenario-label">{t.guide.grantStep.label}</span>
+            <span className="scenario-cmd">{t.guide.grantStep.command}</span>
+          </button>
         </div>
 
         <div className="modal-foot">

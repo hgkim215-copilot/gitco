@@ -327,6 +327,39 @@ body {
   font-size: 13.5px;
   line-height: 1.5;
 }
+.feature-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.feature-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 10px 12px;
+}
+.feature-emoji {
+  font-size: 20px;
+  flex: none;
+  margin-top: 1px;
+}
+.feature-name {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
+}
+.feature-desc {
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.45;
+  margin-top: 2px;
+}
+@media (max-width: 560px) {
+  .feature-grid { grid-template-columns: 1fr; }
+}
 .memory-guide {
   background: #f7f3ff;
   border: 1px solid #e6dbff;
