@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { initDb, addTask, listTasks, addEvent, listEvents, addDraft, listDrafts, setTaskStatus, deleteTask, deleteDraft, addUpdate, listUpdates, deleteUpdate } from "./db.js";
+import { initDb, addTask, listTasks, addEvent, listEvents, addDraft, listDrafts, setTaskStatus, deleteTask, deleteDraft, addUpdate, listUpdates, deleteUpdate, getProfile, setProfile, addBriefing, listBriefings } from "./db.js";
 
 test("addTask then listTasks returns it", () => {
   const db = initDb(":memory:");
@@ -60,4 +60,21 @@ test("addUpdate normalizes content and listUpdates/deleteUpdate work", () => {
   assert.equal(listUpdates(db).length, 1);
   deleteUpdate(db, u.id);
   assert.equal(listUpdates(db).length, 0);
+});
+
+test("profile defaults empty, setProfile persists", () => {
+  const db = initDb(":memory:");
+  assert.deepEqual(getProfile(db), { industry: "", stage: "", interests: "" });
+  const p = setProfile(db, { industry: "SaaS", stage: "예비창업", interests: "B2B, AI" });
+  assert.equal(p.industry, "SaaS");
+  assert.equal(getProfile(db).stage, "예비창업");
+});
+
+test("addBriefing stores picks and listBriefings returns them", () => {
+  const db = initDb(":memory:");
+  const b = addBriefing(db, [
+    { title: "예비창업패키지", agency: "창업진흥원", deadline: "2026-07-15", fit_reason: "예비창업 단계 적합", url: "https://x" },
+  ]);
+  assert.equal(b.content.picks.length, 1);
+  assert.equal(listBriefings(db)[0].content.picks[0].title, "예비창업패키지");
 });

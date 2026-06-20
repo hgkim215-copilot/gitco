@@ -37,7 +37,25 @@ export type Action =
         asks?: string[];
         next?: string;
       };
+    }
+  | {
+      type: "announcement_briefing";
+      data: { picks: BriefingPick[] };
     };
+
+export type Profile = { industry: string; stage: string; interests: string };
+export type BriefingPick = {
+  title: string;
+  agency: string;
+  deadline: string;
+  fit_reason: string;
+  url: string;
+};
+export type Briefing = {
+  id: number;
+  content: { picks: BriefingPick[] };
+  created_at: string;
+};
 
 export type UpdateContent = {
   tldr: string;

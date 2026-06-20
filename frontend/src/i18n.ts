@@ -18,6 +18,20 @@ export type Strings = {
   briefing: string;
   iuButton: string;
   iuCommand: string;
+  anButton: string;
+  anCommand: string;
+  anPanel: string;
+  anDeadline: string;
+  anFit: string;
+  anAddTask: string;
+  anLink: string;
+  profileButton: string;
+  profileTitle: string;
+  profileIndustry: string;
+  profileStage: string;
+  profileInterests: string;
+  profileSave: string;
+  profileSaved: string;
   iuPanel: string;
   iuTldr: string;
   iuMetrics: string;
@@ -102,6 +116,20 @@ export const STRINGS: Record<Lang, Strings> = {
     iuButton: "📈 투자자 업데이트",
     iuCommand:
       "이번 달 투자자 업데이트를 만들어줘. 핵심 지표: MRR 1,200만원(전월 대비 +18%), 신규 고객 30명, 런웨이 9개월. 소식: 첫 기업 고객 계약. Ask: B2B 세일즈 인재 추천.",
+    anButton: "📰 공고 확인",
+    anCommand: "내게 맞는 정부 창업 지원사업 공고를 골라서 마감일과 적합한 이유와 함께 보고해줘.",
+    anPanel: "📰 맞춤 공고 브리핑",
+    anDeadline: "마감",
+    anFit: "적합 이유",
+    anAddTask: "📌 마감 할일 추가",
+    anLink: "원문",
+    profileButton: "⚙️ 프로필",
+    profileTitle: "창업가 프로필",
+    profileIndustry: "업종",
+    profileStage: "창업 단계",
+    profileInterests: "관심 분야",
+    profileSave: "저장",
+    profileSaved: "저장됨 ✓",
     iuPanel: "📈 투자자 업데이트",
     iuTldr: "요약",
     iuMetrics: "핵심 지표",
@@ -199,6 +227,20 @@ export const STRINGS: Record<Lang, Strings> = {
     iuButton: "📈 Investor update",
     iuCommand:
       "Create this month's investor update. Key metrics: MRR ₩12M (+18% MoM), 30 new customers, 9 months runway. News: signed our first enterprise customer. Ask: intros to B2B sales hires.",
+    anButton: "📰 Find grants",
+    anCommand: "Find the government startup-support announcements that fit me, with deadlines and why each fits.",
+    anPanel: "📰 Matched grant briefing",
+    anDeadline: "Deadline",
+    anFit: "Why it fits",
+    anAddTask: "📌 Add deadline task",
+    anLink: "Source",
+    profileButton: "⚙️ Profile",
+    profileTitle: "Founder profile",
+    profileIndustry: "Industry",
+    profileStage: "Stage",
+    profileInterests: "Interests",
+    profileSave: "Save",
+    profileSaved: "Saved ✓",
     iuPanel: "📈 Investor Updates",
     iuTldr: "TL;DR",
     iuMetrics: "Key metrics",
@@ -265,11 +307,13 @@ export const actionLabel: Record<Lang, Record<string, string>> = {
     schedule_event: "일정",
     draft_email: "이메일 초안",
     investor_update: "투자자 업데이트",
+    announcement_briefing: "공고 브리핑",
   },
   en: {
     create_task: "create task",
     schedule_event: "schedule event",
     draft_email: "draft email",
     investor_update: "investor update",
+    announcement_briefing: "grant briefing",
   },
 };

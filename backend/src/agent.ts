@@ -16,6 +16,12 @@ export type Action =
         asks?: string[];
         next?: string;
       };
+    }
+  | {
+      type: "announcement_briefing";
+      data: {
+        picks: { title: string; agency: string; deadline: string; fit_reason: string; url: string }[];
+      };
     };
 
 export type Plan = { summary: string; actions: Action[] };
@@ -37,16 +43,18 @@ Respond with ONLY a single JSON object (no prose, no markdown code fences) of th
     { "type": "create_task", "data": { "title": "string", "priority": "low|medium|high", "due": "YYYY-MM-DD (optional)" } },
     { "type": "schedule_event", "data": { "title": "string", "start": "ISO 8601 datetime", "end": "ISO 8601 (optional)", "notes": "string (optional)" } },
     { "type": "draft_email", "data": { "subject": "string", "body": "string", "to": "string (optional)" } },
-    { "type": "investor_update", "data": { "period": "e.g. 2026-06", "tldr": "2-3 sentence summary", "highlights": ["string"], "metrics": [{ "label": "MRR", "value": "₩12M" }], "lowlights": ["string"], "asks": ["string"], "next": "what's planned next month" } }
+    { "type": "investor_update", "data": { "period": "e.g. 2026-06", "tldr": "2-3 sentence summary", "highlights": ["string"], "metrics": [{ "label": "MRR", "value": "₩12M" }], "lowlights": ["string"], "asks": ["string"], "next": "what's planned next month" } },
+    { "type": "announcement_briefing", "data": { "picks": [{ "title": "string", "agency": "string", "deadline": "YYYY-MM-DD", "fit_reason": "why this fits THIS founder, 1 sentence", "url": "string" }] } }
   ]
 }
 
 Rules:
-- Use only the four action types above.
+- Use only the five action types above.
 - Resolve relative dates (e.g. "next Tuesday") to concrete ISO dates based on the provided current date.
 - Keep email bodies concise and professional.
 - For "investor_update": produce it when the user asks for an investor update / monthly update / IR update. Combine the numbers and news the user provided with the CURRENT WORKSPACE STATE (tasks/events) and any RELEVANT MEMORIES into a concise, investor-appropriate update. Use the user's stated metrics; do not invent numbers. "highlights"/"lowlights"/"asks" are short bullet strings. The "tldr", highlights, lowlights, asks and next MUST be written in the user's language (Korean if the goal is Korean). Prefer one investor_update action (not split into emails).
-- Write the "summary" and ALL human-readable content (titles, notes, email/update text, highlights, asks) in the SAME language as the user's GOAL. If Korean, respond in Korean; if English, English.
+- For "announcement_briefing": produce it when the user asks to check startup grants/announcements (공고). You will be given AVAILABLE ANNOUNCEMENTS and the FOUNDER PROFILE. Select ONLY the announcements that genuinely fit this founder's industry/stage/interests, ranked by fit and deadline urgency. Copy each pick's title/agency/deadline/url verbatim from AVAILABLE ANNOUNCEMENTS; write fit_reason yourself referencing the profile. Do not invent announcements. Pick 2-5. Write fit_reason in the user's language.
+- Write the "summary" and ALL human-readable content (titles, notes, email/update text, highlights, asks, fit_reason) in the SAME language as the user's GOAL. If Korean, respond in Korean; if English, English.
 - The JSON keys and action "type" values must stay exactly as specified in English.
 - Do NOT use any tools. Output JSON only.`;
 

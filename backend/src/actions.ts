@@ -1,5 +1,5 @@
 import type Database from "better-sqlite3";
-import { addTask, addEvent, addDraft, addUpdate } from "./db.js";
+import { addTask, addEvent, addDraft, addUpdate, addBriefing } from "./db.js";
 import type { Plan, Action } from "./agent.js";
 
 export type AppliedResult = { type: Action["type"]; ok: boolean; id?: number; error?: string };
@@ -27,6 +27,9 @@ export function applyPlan(db: Database.Database, plan: Plan): AppliedResult[] {
           next: action.data.next,
         });
         results.push({ type: action.type, ok: true, id: u.id });
+      } else if (action.type === "announcement_briefing") {
+        const b = addBriefing(db, action.data.picks ?? []);
+        results.push({ type: action.type, ok: true, id: b.id });
       } else {
         results.push({ type: (action as Action).type, ok: false, error: "unknown action type" });
       }

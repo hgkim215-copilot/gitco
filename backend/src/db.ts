@@ -37,6 +37,19 @@ export type InvestorUpdate = {
   content: UpdateContent;
   created_at: string;
 };
+export type Profile = { industry: string; stage: string; interests: string };
+export type BriefingPick = {
+  title: string;
+  agency: string;
+  deadline: string;
+  fit_reason: string;
+  url: string;
+};
+export type Briefing = {
+  id: number;
+  content: { picks: BriefingPick[] };
+  created_at: string;
+};
 
 export function initDb(path = "data.db") {
   const db = new Database(path);
@@ -75,6 +88,18 @@ export function initDb(path = "data.db") {
     CREATE TABLE IF NOT EXISTS updates(
       id INTEGER PRIMARY KEY,
       period TEXT NOT NULL,
+      content TEXT NOT NULL,
+      created_at TEXT DEFAULT (datetime('now'))
+    );
+    CREATE TABLE IF NOT EXISTS profile(
+      id INTEGER PRIMARY KEY CHECK (id = 1),
+      industry TEXT DEFAULT '',
+      stage TEXT DEFAULT '',
+      interests TEXT DEFAULT ''
+    );
+    INSERT OR IGNORE INTO profile(id, industry, stage, interests) VALUES (1, '', '', '');
+    CREATE TABLE IF NOT EXISTS briefings(
+      id INTEGER PRIMARY KEY,
       content TEXT NOT NULL,
       created_at TEXT DEFAULT (datetime('now'))
     );
@@ -192,4 +217,49 @@ export function listUpdates(db: Database.Database): InvestorUpdate[] {
 
 export function deleteUpdate(db: Database.Database, id: number): void {
   db.prepare(`DELETE FROM updates WHERE id=?`).run(id);
+}
+
+export function getProfile(db: Database.Database): Profile {
+  const row = db.prepare(`SELECT industry, stage, interests FROM profile WHERE id=1`).get() as
+    | Profile
+    | undefined;
+  return row ?? { industry: "", stage: "", interests: "" };
+}
+
+export function setProfile(db: Database.Database, p: Profile): Profile {
+  db.prepare(`UPDATE profile SET industry=?, stage=?, interests=? WHERE id=1`).run(
+    p.industry ?? "",
+    p.stage ?? "",
+    p.interests ?? "",
+  );
+  return getProfile(db);
+}
+
+export function addBriefing(
+  db: Database.Database,
+  picks: BriefingPick[],
+): Briefing {
+  const content = { picks: Array.isArray(picks) ? picks : [] };
+  const r = db.prepare(`INSERT INTO briefings(content) VALUES(?)`).run(JSON.stringify(content));
+  return rowToBriefing(db.prepare(`SELECT * FROM briefings WHERE id=?`).get(r.lastInsertRowid) as any);
+}
+
+function rowToBriefing(row: { id: number; content: string; created_at: string }): Briefing {
+  let picks: BriefingPick[] = [];
+  try {
+    const parsed = JSON.parse(row.content);
+    if (Array.isArray(parsed?.picks)) picks = parsed.picks;
+  } catch {
+    /* keep empty */
+  }
+  return { id: row.id, content: { picks }, created_at: row.created_at };
+}
+
+export function listBriefings(db: Database.Database): Briefing[] {
+  const rows = db.prepare(`SELECT * FROM briefings ORDER BY id DESC`).all() as any[];
+  return rows.map(rowToBriefing);
+}
+
+export function deleteBriefing(db: Database.Database, id: number): void {
+  db.prepare(`DELETE FROM briefings WHERE id=?`).run(id);
 }

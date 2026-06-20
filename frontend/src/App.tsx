@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import type { Plan, Task, EventRow, Draft, AgentEvent, RecalledMemory, InvestorUpdate } from "./types";
+import type { Plan, Task, EventRow, Draft, AgentEvent, RecalledMemory, InvestorUpdate, Profile, Briefing } from "./types";
 import { STRINGS, actionLabel, type Lang } from "./i18n";
 import {
   sendCommand,
@@ -16,6 +16,11 @@ import {
   getMemoryCount,
   getUpdates,
   deleteUpdate,
+  getProfile,
+  putProfile,
+  getBriefings,
+  deleteBriefing,
+  createTask,
 } from "./api";
 
 function priorityClass(p: string) {
@@ -45,23 +50,34 @@ export default function App() {
   const [events, setEvents] = useState<EventRow[]>([]);
   const [drafts, setDrafts] = useState<Draft[]>([]);
   const [updates, setUpdates] = useState<InvestorUpdate[]>([]);
+  const [briefings, setBriefings] = useState<Briefing[]>([]);
+  const [profile, setProfile] = useState<Profile>({ industry: "", stage: "", interests: "" });
+  const [showProfile, setShowProfile] = useState(false);
 
   const recognitionRef = useRef<any>(null);
 
   async function refresh() {
-    const [t, e, d, u] = await Promise.all([getTasks(), getEvents(), getDrafts(), getUpdates()]);
+    const [t, e, d, u, b] = await Promise.all([
+      getTasks(),
+      getEvents(),
+      getDrafts(),
+      getUpdates(),
+      getBriefings(),
+    ]);
     setTasks(t);
     setEvents(e);
     setDrafts(d);
     setUpdates(u);
+    setBriefings(b);
   }
 
   useEffect(() => {
     refresh();
     getMemoryCount().then(setMemCount);
+    getProfile().then(setProfile);
   }, []);
 
-  async function run(cmd: string) {
+  async function run(cmd: string, mode?: string) {
     if (!cmd.trim() || running) return;
     setRunning(true);
     setStream("");
@@ -70,7 +86,7 @@ export default function App() {
     setRunId(null);
     setRecalled([]);
     try {
-      const id = await sendCommand(cmd);
+      const id = await sendCommand(cmd, mode);
       setRunId(id);
       const unsub = subscribe(id, (ev: AgentEvent) => {
         if (ev.type === "delta") setStream((s) => s + ev.data);
@@ -96,6 +112,7 @@ export default function App() {
       setEvents(res.events);
       setDrafts(res.drafts);
       if ((res as any).updates) setUpdates((res as any).updates);
+      if ((res as any).briefings) setBriefings((res as any).briefings);
     } else {
       await refresh();
     }
@@ -163,6 +180,28 @@ export default function App() {
     }
   }
 
+  async function onDeleteBriefing(id: number) {
+    const r = await deleteBriefing(id);
+    if (r.briefings) setBriefings(r.briefings);
+  }
+  async function onAddDeadlineTask(pick: { title: string; deadline: string }) {
+    const r = await createTask(`[지원] ${pick.title} 마감 준비`, pick.deadline, "high");
+    if (r.tasks) setTasks(r.tasks);
+  }
+  async function onSaveProfile(p: Profile) {
+    const saved = await putProfile(p);
+    setProfile(saved);
+    setShowProfile(false);
+  }
+
+  function dday(deadline: string): string {
+    const d = new Date(deadline + "T00:00:00");
+    const diff = Math.ceil((d.getTime() - Date.now()) / 86400000);
+    if (isNaN(diff)) return "";
+    if (diff === 0) return "D-DAY";
+    return diff > 0 ? `D-${diff}` : `D+${-diff}`;
+  }
+
   function toggleVoice() {
     const SR = (window as any).webkitSpeechRecognition || (window as any).SpeechRecognition;
     if (!SR) {
@@ -205,6 +244,9 @@ export default function App() {
               🧠 {memCount} {t.memBadge}
             </span>
           )}
+          <button className="lang" onClick={() => setShowProfile(true)}>
+            {t.profileButton}
+          </button>
           <button className="lang" onClick={() => setShowGuide(true)}>
             ❔ {t.guideButton}
           </button>
@@ -213,6 +255,10 @@ export default function App() {
           </button>
         </div>
       </header>
+
+      {showProfile && (
+        <ProfileModal t={t} profile={profile} onClose={() => setShowProfile(false)} onSave={onSaveProfile} />
+      )}
 
       {showGuide && (
         <GuideModal
@@ -263,6 +309,13 @@ export default function App() {
             disabled={running}
           >
             {t.iuButton}
+          </button>
+          <button
+            className="briefing-btn an-btn"
+            onClick={() => run(t.anCommand, "announcements")}
+            disabled={running}
+          >
+            {t.anButton}
           </button>
           {t.scenarios.map((s, i) => (
             <button
@@ -323,6 +376,8 @@ export default function App() {
                         `${(a.data as any).subject} → ${(a.data as any).to ?? t.noRecipient}`}
                       {a.type === "investor_update" &&
                         `${(a.data as any).period} — ${(a.data as any).tldr}`}
+                      {a.type === "announcement_briefing" &&
+                        `${((a.data as any).picks ?? []).length}건 추천: ${((a.data as any).picks ?? []).map((p: any) => p.title).join(", ")}`}
                     </span>
                   </li>
                 ))}
@@ -489,6 +544,56 @@ export default function App() {
         </section>
       )}
 
+      {briefings.length > 0 && (
+        <section className="updates">
+          <div className="updates-head">{t.anPanel}</div>
+          {briefings.map((b) => (
+            <div className="report" key={b.id}>
+              <div className="report-head">
+                <div className="report-period">📰 {b.content.picks.length}</div>
+                <button
+                  className="icon-btn icon-danger"
+                  title={t.del}
+                  onClick={() => onDeleteBriefing(b.id)}
+                >
+                  ✕
+                </button>
+              </div>
+              <div className="grant-list">
+                {b.content.picks.map((p, i) => (
+                  <div className="grant" key={i}>
+                    <div className="grant-top">
+                      <span className="grant-dday">{dday(p.deadline)}</span>
+                      <span className="grant-deadline">
+                        {t.anDeadline} {p.deadline}
+                      </span>
+                    </div>
+                    <div className="grant-title">{p.title}</div>
+                    <div className="grant-agency">{p.agency}</div>
+                    <div className="grant-fit">
+                      <b>{t.anFit}:</b> {p.fit_reason}
+                    </div>
+                    <div className="grant-actions">
+                      <button
+                        className="grant-btn"
+                        onClick={() => onAddDeadlineTask({ title: p.title, deadline: p.deadline })}
+                      >
+                        {t.anAddTask}
+                      </button>
+                      {p.url && (
+                        <a className="grant-link" href={p.url} target="_blank" rel="noreferrer">
+                          {t.anLink} ↗
+                        </a>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+        </section>
+      )}
+
       <footer className="footer">{t.footer}</footer>
     </div>
   );
@@ -529,6 +634,45 @@ function ReportList({ label, items }: { label: string; items: string[] }) {
           <li key={i}>{it}</li>
         ))}
       </ul>
+    </div>
+  );
+}
+
+function ProfileModal({
+  t,
+  profile,
+  onClose,
+  onSave,
+}: {
+  t: (typeof STRINGS)[Lang];
+  profile: Profile;
+  onClose: () => void;
+  onSave: (p: Profile) => void;
+}) {
+  const [industry, setIndustry] = useState(profile.industry);
+  const [stage, setStage] = useState(profile.stage);
+  const [interests, setInterests] = useState(profile.interests);
+  return (
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="modal modal-sm" onClick={(e) => e.stopPropagation()}>
+        <div className="modal-head">
+          <h2>{t.profileTitle}</h2>
+          <button className="modal-close" onClick={onClose}>
+            ✕
+          </button>
+        </div>
+        <label className="field-label">{t.profileIndustry}</label>
+        <input className="field" value={industry} onChange={(e) => setIndustry(e.target.value)} placeholder="예: B2B SaaS (AI 분석 툴)" />
+        <label className="field-label">{t.profileStage}</label>
+        <input className="field" value={stage} onChange={(e) => setStage(e.target.value)} placeholder="예: 예비창업 (사업자등록 전)" />
+        <label className="field-label">{t.profileInterests}</label>
+        <input className="field" value={interests} onChange={(e) => setInterests(e.target.value)} placeholder="예: R&D 자금, 글로벌 진출, TIPS" />
+        <div className="modal-foot">
+          <button className="approve" onClick={() => onSave({ industry, stage, interests })}>
+            {t.profileSave}
+          </button>
+        </div>
+      </div>
     </div>
   );
 }

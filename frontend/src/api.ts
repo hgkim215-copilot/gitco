@@ -1,10 +1,10 @@
-import type { AgentEvent, Task, EventRow, Draft, InvestorUpdate } from "./types";
+import type { AgentEvent, Task, EventRow, Draft, InvestorUpdate, Profile, Briefing } from "./types";
 
-export async function sendCommand(text: string): Promise<string> {
+export async function sendCommand(text: string, mode?: string): Promise<string> {
   const r = await fetch("/api/command", {
     method: "POST",
     headers: { "content-type": "application/json" },
-    body: JSON.stringify({ text }),
+    body: JSON.stringify({ text, mode }),
   });
   const j = await r.json();
   if (j.error) throw new Error(j.error);
@@ -82,4 +82,32 @@ export async function getUpdates(): Promise<InvestorUpdate[]> {
 }
 export async function deleteUpdate(id: number): Promise<{ updates: InvestorUpdate[] }> {
   return (await fetch(`/api/updates/${id}`, { method: "DELETE" })).json();
+}
+
+export async function getProfile(): Promise<Profile> {
+  return (await fetch("/api/profile")).json();
+}
+export async function putProfile(p: Profile): Promise<Profile> {
+  return (
+    await fetch("/api/profile", {
+      method: "PUT",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(p),
+    })
+  ).json();
+}
+export async function getBriefings(): Promise<Briefing[]> {
+  return (await fetch("/api/briefings")).json();
+}
+export async function deleteBriefing(id: number): Promise<{ briefings: Briefing[] }> {
+  return (await fetch(`/api/briefings/${id}`, { method: "DELETE" })).json();
+}
+export async function createTask(title: string, due?: string, priority?: string): Promise<{ tasks: Task[] }> {
+  return (
+    await fetch("/api/tasks", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ title, due, priority }),
+    })
+  ).json();
 }

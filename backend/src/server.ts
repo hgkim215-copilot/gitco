@@ -5,11 +5,12 @@ import { dirname, join } from "node:path";
 import { existsSync } from "node:fs";
 import fastifyStatic from "@fastify/static";
 import { loadConfig } from "./config.js";
-import { initDb, listTasks, listEvents, listDrafts, setTaskStatus, deleteTask, deleteEvent, deleteDraft, listUpdates, deleteUpdate } from "./db.js";
+import { initDb, listTasks, listEvents, listDrafts, setTaskStatus, deleteTask, deleteEvent, deleteDraft, listUpdates, deleteUpdate, getProfile, setProfile, listBriefings, deleteBriefing, addTask } from "./db.js";
 import { planFromCommand, type AgentEvent, type Plan, type Action } from "./agent.js";
 import { applyPlan } from "./actions.js";
 import { embed } from "./embeddings.js";
 import { addMemory, searchMemories, countMemories } from "./memory.js";
+import { getAnnouncements } from "./announcements.js";
 
 type Run = { buffer: AgentEvent[]; emit: ((e: AgentEvent) => void) | null; plan: Plan | null };
 
@@ -29,13 +30,18 @@ export function buildServer() {
   function buildContext(): string {
     const tasks = listTasks(db);
     const events = listEvents(db);
+    const p = getProfile(db);
     const taskLines = tasks.length
       ? tasks.map((t) => `- [${t.priority}] ${t.title} (${t.status})`).join("\n")
       : "(none)";
     const eventLines = events.length
       ? events.map((e) => `- ${e.start}: ${e.title}`).join("\n")
       : "(none)";
-    return `Open tasks:\n${taskLines}\n\nUpcoming events:\n${eventLines}`;
+    const profileLine =
+      p.industry || p.stage || p.interests
+        ? `FOUNDER PROFILE: industry=${p.industry || "?"}, stage=${p.stage || "?"}, interests=${p.interests || "?"}\n\n`
+        : "";
+    return `${profileLine}Open tasks:\n${taskLines}\n\nUpcoming events:\n${eventLines}`;
   }
 
   app.get("/api/health", async () => ({ ok: true }));
@@ -43,6 +49,27 @@ export function buildServer() {
   app.get("/api/events", async () => listEvents(db));
   app.get("/api/drafts", async () => listDrafts(db));
   app.get("/api/updates", async () => listUpdates(db));
+  app.get("/api/briefings", async () => listBriefings(db));
+  app.get("/api/profile", async () => getProfile(db));
+  app.put("/api/profile", async (req) => {
+    const b = (req.body ?? {}) as { industry?: string; stage?: string; interests?: string };
+    return setProfile(db, {
+      industry: b.industry ?? "",
+      stage: b.stage ?? "",
+      interests: b.interests ?? "",
+    });
+  });
+  app.get("/api/announcements", async () => getAnnouncements());
+  app.post("/api/tasks", async (req) => {
+    const b = (req.body ?? {}) as { title?: string; priority?: string; due?: string };
+    if (!b.title) return { error: "title required" };
+    addTask(db, { title: b.title, priority: b.priority, due: b.due });
+    return { tasks: listTasks(db) };
+  });
+  app.delete("/api/briefings/:id", async (req) => {
+    deleteBriefing(db, Number((req.params as { id: string }).id));
+    return { briefings: listBriefings(db) };
+  });
 
   app.post("/api/tasks/:id/toggle", async (req) => {
     const { id } = req.params as { id: string };
@@ -69,7 +96,7 @@ export function buildServer() {
   });
 
   app.post("/api/command", async (req) => {
-    const { text } = (req.body ?? {}) as { text?: string };
+    const { text, mode } = (req.body ?? {}) as { text?: string; mode?: string };
     if (!text || !text.trim()) return { error: "text required" };
     const runId = randomUUID();
     runs.set(runId, { buffer: [], emit: null, plan: null });
@@ -77,6 +104,19 @@ export function buildServer() {
     // Kick off the agent shortly after, so the client can subscribe to the stream.
     setTimeout(async () => {
       try {
+        // For the announcements briefing, inject the available announcements.
+        let announcementsContext = "";
+        if (mode === "announcements") {
+          const { items } = await getAnnouncements();
+          announcementsContext =
+            "\n\nAVAILABLE ANNOUNCEMENTS (pick the ones that fit this founder; copy title/agency/deadline/url verbatim):\n" +
+            items
+              .map(
+                (a) =>
+                  `- title: ${a.title} | agency: ${a.agency} | category: ${a.category} | target: ${a.target} | deadline: ${a.deadline} | url: ${a.url} | summary: ${a.summary}`,
+              )
+              .join("\n");
+        }
         // Semantic recall: find past items related to this command (Azure embeddings).
         let recalledContext = "";
         const queryVec = await embed(config, text);
@@ -95,7 +135,7 @@ export function buildServer() {
         const plan = await planFromCommand({
           config,
           prompt: text,
-          context: buildContext() + recalledContext,
+          context: buildContext() + announcementsContext + recalledContext,
           emit: (e) => emitTo(runId, e),
         });
         const run = runs.get(runId);
@@ -144,6 +184,8 @@ export function buildServer() {
       return `일정: ${a.data.title} (${a.data.start})`;
     if (a.type === "investor_update")
       return `투자자 업데이트: ${a.data.period} — ${a.data.tldr}`;
+    if (a.type === "announcement_briefing")
+      return `공고 브리핑: ${(a.data.picks ?? []).map((p) => p.title).join(", ")}`;
     return `이메일 초안: ${a.data.subject}${a.data.to ? ` → ${a.data.to}` : ""}`;
   }
 
@@ -169,6 +211,7 @@ export function buildServer() {
       events: listEvents(db),
       drafts: listDrafts(db),
       updates: listUpdates(db),
+      briefings: listBriefings(db),
       memoryCount: countMemories(db),
     };
   });
