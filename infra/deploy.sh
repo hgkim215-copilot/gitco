@@ -16,7 +16,8 @@ LOC=eastus2
 APP=ai-chief-of-staff
 ENVNAME=lip-env
 ACR=ca74949c518eacr
-IMAGE="$ACR.azurecr.io/$APP:latest"
+TAG="$(date +%Y%m%d%H%M%S)"
+IMAGE="$ACR.azurecr.io/$APP:$TAG"
 
 # Pre-build locally (native) — avoids vite/tsc segfaults under amd64 emulation.
 export PATH="$HOME/.nvm/versions/node/v22.22.2/bin:$PATH"
