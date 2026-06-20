@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import type { Plan, Task, EventRow, Draft, AgentEvent, RecalledMemory } from "./types";
+import type { Plan, Task, EventRow, Draft, AgentEvent, RecalledMemory, InvestorUpdate } from "./types";
 import { STRINGS, actionLabel, type Lang } from "./i18n";
 import {
   sendCommand,
@@ -14,6 +14,8 @@ import {
   deleteEvent,
   deleteDraft,
   getMemoryCount,
+  getUpdates,
+  deleteUpdate,
 } from "./api";
 
 function priorityClass(p: string) {
@@ -42,14 +44,16 @@ export default function App() {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [events, setEvents] = useState<EventRow[]>([]);
   const [drafts, setDrafts] = useState<Draft[]>([]);
+  const [updates, setUpdates] = useState<InvestorUpdate[]>([]);
 
   const recognitionRef = useRef<any>(null);
 
   async function refresh() {
-    const [t, e, d] = await Promise.all([getTasks(), getEvents(), getDrafts()]);
+    const [t, e, d, u] = await Promise.all([getTasks(), getEvents(), getDrafts(), getUpdates()]);
     setTasks(t);
     setEvents(e);
     setDrafts(d);
+    setUpdates(u);
   }
 
   useEffect(() => {
@@ -91,6 +95,7 @@ export default function App() {
       setTasks(res.tasks);
       setEvents(res.events);
       setDrafts(res.drafts);
+      if ((res as any).updates) setUpdates((res as any).updates);
     } else {
       await refresh();
     }
@@ -122,6 +127,31 @@ export default function App() {
   async function onDeleteDraft(id: number) {
     const r = await deleteDraft(id);
     if (r.drafts) setDrafts(r.drafts);
+  }
+  async function onDeleteUpdate(id: number) {
+    const r = await deleteUpdate(id);
+    if (r.updates) setUpdates(r.updates);
+  }
+  async function onCopyUpdate(u: InvestorUpdate) {
+    const c = u.content;
+    const md = [
+      `# 투자자 업데이트 — ${u.period}`,
+      c.tldr,
+      c.metrics.length ? "\n## 지표\n" + c.metrics.map((m) => `- ${m.label}: ${m.value}`).join("\n") : "",
+      c.highlights.length ? "\n## 하이라이트\n" + c.highlights.map((h) => `- ${h}`).join("\n") : "",
+      c.lowlights.length ? "\n## 어려웠던 점\n" + c.lowlights.map((l) => `- ${l}`).join("\n") : "",
+      c.asks.length ? "\n## 요청\n" + c.asks.map((a) => `- ${a}`).join("\n") : "",
+      c.next ? `\n## 다음 달\n${c.next}` : "",
+    ]
+      .filter(Boolean)
+      .join("\n");
+    try {
+      await navigator.clipboard.writeText(md);
+      setCopiedId(-u.id);
+      setTimeout(() => setCopiedId(null), 1500);
+    } catch {
+      /* ignore */
+    }
   }
   async function onCopyDraft(id: number, body: string, subject: string) {
     try {
@@ -227,6 +257,13 @@ export default function App() {
           >
             {t.briefing}
           </button>
+          <button
+            className="briefing-btn iu-btn"
+            onClick={() => setText(t.iuCommand)}
+            disabled={running}
+          >
+            {t.iuButton}
+          </button>
           {t.scenarios.map((s, i) => (
             <button
               key={i}
@@ -284,6 +321,8 @@ export default function App() {
                         `${(a.data as any).title} — ${(a.data as any).start}`}
                       {a.type === "draft_email" &&
                         `${(a.data as any).subject} → ${(a.data as any).to ?? t.noRecipient}`}
+                      {a.type === "investor_update" &&
+                        `${(a.data as any).period} — ${(a.data as any).tldr}`}
                     </span>
                   </li>
                 ))}
@@ -387,6 +426,69 @@ export default function App() {
         </Panel>
       </section>
 
+      {updates.length > 0 && (
+        <section className="updates">
+          <div className="updates-head">{t.iuPanel}</div>
+          {updates.map((u) => (
+            <div className="report" key={u.id}>
+              <div className="report-head">
+                <div className="report-period">📈 {u.period}</div>
+                <div className="card-actions">
+                  <button
+                    className="icon-btn"
+                    title={t.copy}
+                    onClick={() => onCopyUpdate(u)}
+                  >
+                    {copiedId === -u.id ? "✓" : "⧉"}
+                  </button>
+                  <button
+                    className="icon-btn icon-danger"
+                    title={t.del}
+                    onClick={() => onDeleteUpdate(u.id)}
+                  >
+                    ✕
+                  </button>
+                </div>
+              </div>
+              {u.content.tldr && (
+                <div className="report-block">
+                  <div className="report-label">{t.iuTldr}</div>
+                  <div className="report-tldr">{u.content.tldr}</div>
+                </div>
+              )}
+              {u.content.metrics.length > 0 && (
+                <div className="report-block">
+                  <div className="report-label">{t.iuMetrics}</div>
+                  <div className="metric-row">
+                    {u.content.metrics.map((m, i) => (
+                      <div className="metric" key={i}>
+                        <div className="metric-value">{m.value}</div>
+                        <div className="metric-label">{m.label}</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {u.content.highlights.length > 0 && (
+                <ReportList label={t.iuHighlights} items={u.content.highlights} />
+              )}
+              {u.content.lowlights.length > 0 && (
+                <ReportList label={t.iuLowlights} items={u.content.lowlights} />
+              )}
+              {u.content.asks.length > 0 && (
+                <ReportList label={t.iuAsks} items={u.content.asks} />
+              )}
+              {u.content.next && (
+                <div className="report-block">
+                  <div className="report-label">{t.iuNext}</div>
+                  <div className="report-tldr">{u.content.next}</div>
+                </div>
+              )}
+            </div>
+          ))}
+        </section>
+      )}
+
       <footer className="footer">{t.footer}</footer>
     </div>
   );
@@ -414,6 +516,19 @@ function Panel({
       <div className="panel-body">
         {hasItems ? children : <div className="empty">{empty}</div>}
       </div>
+    </div>
+  );
+}
+
+function ReportList({ label, items }: { label: string; items: string[] }) {
+  return (
+    <div className="report-block">
+      <div className="report-label">{label}</div>
+      <ul className="report-list">
+        {items.map((it, i) => (
+          <li key={i}>{it}</li>
+        ))}
+      </ul>
     </div>
   );
 }

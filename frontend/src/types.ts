@@ -25,7 +25,34 @@ export type Draft = {
 export type Action =
   | { type: "create_task"; data: { title: string; priority?: string; due?: string } }
   | { type: "schedule_event"; data: { title: string; start: string; end?: string; notes?: string } }
-  | { type: "draft_email"; data: { subject: string; body: string; to?: string } };
+  | { type: "draft_email"; data: { subject: string; body: string; to?: string } }
+  | {
+      type: "investor_update";
+      data: {
+        period: string;
+        tldr: string;
+        highlights?: string[];
+        metrics?: { label: string; value: string }[];
+        lowlights?: string[];
+        asks?: string[];
+        next?: string;
+      };
+    };
+
+export type UpdateContent = {
+  tldr: string;
+  highlights: string[];
+  metrics: { label: string; value: string }[];
+  lowlights: string[];
+  asks: string[];
+  next: string;
+};
+export type InvestorUpdate = {
+  id: number;
+  period: string;
+  content: UpdateContent;
+  created_at: string;
+};
 
 export type Plan = { summary: string; actions: Action[] };
 

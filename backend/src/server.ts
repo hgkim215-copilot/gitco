@@ -5,7 +5,7 @@ import { dirname, join } from "node:path";
 import { existsSync } from "node:fs";
 import fastifyStatic from "@fastify/static";
 import { loadConfig } from "./config.js";
-import { initDb, listTasks, listEvents, listDrafts, setTaskStatus, deleteTask, deleteEvent, deleteDraft } from "./db.js";
+import { initDb, listTasks, listEvents, listDrafts, setTaskStatus, deleteTask, deleteEvent, deleteDraft, listUpdates, deleteUpdate } from "./db.js";
 import { planFromCommand, type AgentEvent, type Plan, type Action } from "./agent.js";
 import { applyPlan } from "./actions.js";
 import { embed } from "./embeddings.js";
@@ -42,6 +42,7 @@ export function buildServer() {
   app.get("/api/tasks", async () => listTasks(db));
   app.get("/api/events", async () => listEvents(db));
   app.get("/api/drafts", async () => listDrafts(db));
+  app.get("/api/updates", async () => listUpdates(db));
 
   app.post("/api/tasks/:id/toggle", async (req) => {
     const { id } = req.params as { id: string };
@@ -61,6 +62,10 @@ export function buildServer() {
   app.delete("/api/drafts/:id", async (req) => {
     deleteDraft(db, Number((req.params as { id: string }).id));
     return { drafts: listDrafts(db) };
+  });
+  app.delete("/api/updates/:id", async (req) => {
+    deleteUpdate(db, Number((req.params as { id: string }).id));
+    return { updates: listUpdates(db) };
   });
 
   app.post("/api/command", async (req) => {
@@ -137,6 +142,8 @@ export function buildServer() {
     if (a.type === "create_task") return `할 일: ${a.data.title}`;
     if (a.type === "schedule_event")
       return `일정: ${a.data.title} (${a.data.start})`;
+    if (a.type === "investor_update")
+      return `투자자 업데이트: ${a.data.period} — ${a.data.tldr}`;
     return `이메일 초안: ${a.data.subject}${a.data.to ? ` → ${a.data.to}` : ""}`;
   }
 
@@ -161,6 +168,7 @@ export function buildServer() {
       tasks: listTasks(db),
       events: listEvents(db),
       drafts: listDrafts(db),
+      updates: listUpdates(db),
       memoryCount: countMemories(db),
     };
   });

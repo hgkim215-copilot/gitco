@@ -4,7 +4,19 @@ import type { AppConfig } from "./config.js";
 export type Action =
   | { type: "create_task"; data: { title: string; priority?: string; due?: string } }
   | { type: "schedule_event"; data: { title: string; start: string; end?: string; notes?: string } }
-  | { type: "draft_email"; data: { subject: string; body: string; to?: string } };
+  | { type: "draft_email"; data: { subject: string; body: string; to?: string } }
+  | {
+      type: "investor_update";
+      data: {
+        period: string;
+        tldr: string;
+        highlights?: string[];
+        metrics?: { label: string; value: string }[];
+        lowlights?: string[];
+        asks?: string[];
+        next?: string;
+      };
+    };
 
 export type Plan = { summary: string; actions: Action[] };
 
@@ -24,15 +36,17 @@ Respond with ONLY a single JSON object (no prose, no markdown code fences) of th
   "actions": [
     { "type": "create_task", "data": { "title": "string", "priority": "low|medium|high", "due": "YYYY-MM-DD (optional)" } },
     { "type": "schedule_event", "data": { "title": "string", "start": "ISO 8601 datetime", "end": "ISO 8601 (optional)", "notes": "string (optional)" } },
-    { "type": "draft_email", "data": { "subject": "string", "body": "string", "to": "string (optional)" } }
+    { "type": "draft_email", "data": { "subject": "string", "body": "string", "to": "string (optional)" } },
+    { "type": "investor_update", "data": { "period": "e.g. 2026-06", "tldr": "2-3 sentence summary", "highlights": ["string"], "metrics": [{ "label": "MRR", "value": "₩12M" }], "lowlights": ["string"], "asks": ["string"], "next": "what's planned next month" } }
   ]
 }
 
 Rules:
-- Use only the three action types above.
+- Use only the four action types above.
 - Resolve relative dates (e.g. "next Tuesday") to concrete ISO dates based on the provided current date.
 - Keep email bodies concise and professional.
-- Write the "summary" and ALL human-readable content (task titles, event titles, notes, email subject and body) in the SAME language as the user's GOAL. If the goal is written in Korean, respond in Korean; if in English, respond in English.
+- For "investor_update": produce it when the user asks for an investor update / monthly update / IR update. Combine the numbers and news the user provided with the CURRENT WORKSPACE STATE (tasks/events) and any RELEVANT MEMORIES into a concise, investor-appropriate update. Use the user's stated metrics; do not invent numbers. "highlights"/"lowlights"/"asks" are short bullet strings. The "tldr", highlights, lowlights, asks and next MUST be written in the user's language (Korean if the goal is Korean). Prefer one investor_update action (not split into emails).
+- Write the "summary" and ALL human-readable content (titles, notes, email/update text, highlights, asks) in the SAME language as the user's GOAL. If Korean, respond in Korean; if English, English.
 - The JSON keys and action "type" values must stay exactly as specified in English.
 - Do NOT use any tools. Output JSON only.`;
 

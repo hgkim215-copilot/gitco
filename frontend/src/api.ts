@@ -1,4 +1,4 @@
-import type { AgentEvent, Task, EventRow, Draft } from "./types";
+import type { AgentEvent, Task, EventRow, Draft, InvestorUpdate } from "./types";
 
 export async function sendCommand(text: string): Promise<string> {
   const r = await fetch("/api/command", {
@@ -75,4 +75,11 @@ export async function getMemoryCount(): Promise<number> {
   } catch {
     return 0;
   }
+}
+
+export async function getUpdates(): Promise<InvestorUpdate[]> {
+  return (await fetch("/api/updates")).json();
+}
+export async function deleteUpdate(id: number): Promise<{ updates: InvestorUpdate[] }> {
+  return (await fetch(`/api/updates/${id}`, { method: "DELETE" })).json();
 }

@@ -16,6 +16,15 @@ export type Strings = {
   planning: string;
   rawToggle: string;
   briefing: string;
+  iuButton: string;
+  iuCommand: string;
+  iuPanel: string;
+  iuTldr: string;
+  iuMetrics: string;
+  iuHighlights: string;
+  iuLowlights: string;
+  iuAsks: string;
+  iuNext: string;
   recalled: string;
   memBadge: string;
   copy: string;
@@ -90,6 +99,16 @@ export const STRINGS: Record<Lang, Strings> = {
     planning: "깃코가 계획을 세우고 있어요…",
     rawToggle: "원문 보기",
     briefing: "✨ 오늘의 브리핑",
+    iuButton: "📈 투자자 업데이트",
+    iuCommand:
+      "이번 달 투자자 업데이트를 만들어줘. 핵심 지표: MRR 1,200만원(전월 대비 +18%), 신규 고객 30명, 런웨이 9개월. 소식: 첫 기업 고객 계약. Ask: B2B 세일즈 인재 추천.",
+    iuPanel: "📈 투자자 업데이트",
+    iuTldr: "요약",
+    iuMetrics: "핵심 지표",
+    iuHighlights: "하이라이트",
+    iuLowlights: "어려웠던 점",
+    iuAsks: "요청 사항",
+    iuNext: "다음 달 계획",
     recalled: "🧠 깃코가 기억을 떠올렸어요",
     memBadge: "기억",
     copy: "복사",
@@ -177,6 +196,16 @@ export const STRINGS: Record<Lang, Strings> = {
     planning: "Gitco is drafting a plan…",
     rawToggle: "Show raw",
     briefing: "✨ Today's briefing",
+    iuButton: "📈 Investor update",
+    iuCommand:
+      "Create this month's investor update. Key metrics: MRR ₩12M (+18% MoM), 30 new customers, 9 months runway. News: signed our first enterprise customer. Ask: intros to B2B sales hires.",
+    iuPanel: "📈 Investor Updates",
+    iuTldr: "TL;DR",
+    iuMetrics: "Key metrics",
+    iuHighlights: "Highlights",
+    iuLowlights: "Lowlights",
+    iuAsks: "Asks",
+    iuNext: "Next month",
     recalled: "🧠 Gitco recalled from memory",
     memBadge: "memories",
     copy: "Copy",
@@ -235,10 +264,12 @@ export const actionLabel: Record<Lang, Record<string, string>> = {
     create_task: "할 일",
     schedule_event: "일정",
     draft_email: "이메일 초안",
+    investor_update: "투자자 업데이트",
   },
   en: {
     create_task: "create task",
     schedule_event: "schedule event",
     draft_email: "draft email",
+    investor_update: "investor update",
   },
 };

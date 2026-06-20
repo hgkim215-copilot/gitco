@@ -23,6 +23,20 @@ export type Draft = {
   to: string | null;
   created_at: string;
 };
+export type UpdateContent = {
+  tldr: string;
+  highlights: string[];
+  metrics: { label: string; value: string }[];
+  lowlights: string[];
+  asks: string[];
+  next: string;
+};
+export type InvestorUpdate = {
+  id: number;
+  period: string;
+  content: UpdateContent;
+  created_at: string;
+};
 
 export function initDb(path = "data.db") {
   const db = new Database(path);
@@ -56,6 +70,12 @@ export function initDb(path = "data.db") {
       kind TEXT NOT NULL,
       text TEXT NOT NULL,
       vector TEXT NOT NULL,
+      created_at TEXT DEFAULT (datetime('now'))
+    );
+    CREATE TABLE IF NOT EXISTS updates(
+      id INTEGER PRIMARY KEY,
+      period TEXT NOT NULL,
+      content TEXT NOT NULL,
       created_at TEXT DEFAULT (datetime('now'))
     );
   `);
@@ -123,4 +143,53 @@ export function deleteEvent(db: Database.Database, id: number): void {
 
 export function deleteDraft(db: Database.Database, id: number): void {
   db.prepare(`DELETE FROM drafts WHERE id=?`).run(id);
+}
+
+function normalizeContent(c: Partial<UpdateContent> | undefined): UpdateContent {
+  return {
+    tldr: c?.tldr ?? "",
+    highlights: Array.isArray(c?.highlights) ? c!.highlights : [],
+    metrics: Array.isArray(c?.metrics) ? c!.metrics : [],
+    lowlights: Array.isArray(c?.lowlights) ? c!.lowlights : [],
+    asks: Array.isArray(c?.asks) ? c!.asks : [],
+    next: c?.next ?? "",
+  };
+}
+
+export function addUpdate(
+  db: Database.Database,
+  period: string,
+  content: Partial<UpdateContent>,
+): InvestorUpdate {
+  const normalized = normalizeContent(content);
+  const r = db
+    .prepare(`INSERT INTO updates(period, content) VALUES(?,?)`)
+    .run(period || "", JSON.stringify(normalized));
+  return rowToUpdate(
+    db.prepare(`SELECT * FROM updates WHERE id=?`).get(r.lastInsertRowid) as any,
+  );
+}
+
+function rowToUpdate(row: { id: number; period: string; content: string; created_at: string }): InvestorUpdate {
+  let parsed: Partial<UpdateContent> = {};
+  try {
+    parsed = JSON.parse(row.content);
+  } catch {
+    /* keep defaults */
+  }
+  return {
+    id: row.id,
+    period: row.period,
+    content: normalizeContent(parsed),
+    created_at: row.created_at,
+  };
+}
+
+export function listUpdates(db: Database.Database): InvestorUpdate[] {
+  const rows = db.prepare(`SELECT * FROM updates ORDER BY id DESC`).all() as any[];
+  return rows.map(rowToUpdate);
+}
+
+export function deleteUpdate(db: Database.Database, id: number): void {
+  db.prepare(`DELETE FROM updates WHERE id=?`).run(id);
 }

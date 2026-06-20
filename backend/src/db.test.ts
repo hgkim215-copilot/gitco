@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { initDb, addTask, listTasks, addEvent, listEvents, addDraft, listDrafts, setTaskStatus, deleteTask, deleteDraft } from "./db.js";
+import { initDb, addTask, listTasks, addEvent, listEvents, addDraft, listDrafts, setTaskStatus, deleteTask, deleteDraft, addUpdate, listUpdates, deleteUpdate } from "./db.js";
 
 test("addTask then listTasks returns it", () => {
   const db = initDb(":memory:");
@@ -45,4 +45,19 @@ test("deleteDraft removes a draft", () => {
   const d = addDraft(db, { subject: "S", body: "B" });
   deleteDraft(db, d.id);
   assert.equal(listDrafts(db).length, 0);
+});
+
+test("addUpdate normalizes content and listUpdates/deleteUpdate work", () => {
+  const db = initDb(":memory:");
+  const u = addUpdate(db, "2026-06", {
+    tldr: "Strong month",
+    metrics: [{ label: "MRR", value: "₩12M" }],
+    highlights: ["Closed 30 new customers"],
+  });
+  assert.equal(u.period, "2026-06");
+  assert.equal(u.content.metrics[0].label, "MRR");
+  assert.deepEqual(u.content.asks, []); // missing field normalized to []
+  assert.equal(listUpdates(db).length, 1);
+  deleteUpdate(db, u.id);
+  assert.equal(listUpdates(db).length, 0);
 });
