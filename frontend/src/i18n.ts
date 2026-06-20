@@ -15,6 +15,7 @@ export type Strings = {
   activity: string;
   planning: string;
   rawToggle: string;
+  timeSaved: (n: number) => string;
   briefing: string;
   iuButton: string;
   iuCommand: string;
@@ -168,6 +169,7 @@ export const STRINGS: Record<Lang, Strings> = {
     activity: "에이전트 활동",
     planning: "깃코가 계획을 세우고 있어요…",
     rawToggle: "원문 보기",
+    timeSaved: (n: number) => `⚡ 직접 하면 약 ${n}분 — 깃코가 자동으로`,
     briefing: "✨ 오늘의 브리핑",
     iuButton: "📈 투자자 업데이트",
     iuCommand:
@@ -378,6 +380,7 @@ export const STRINGS: Record<Lang, Strings> = {
     activity: "Agent activity",
     planning: "Gitco is drafting a plan…",
     rawToggle: "Show raw",
+    timeSaved: (n: number) => `⚡ ~${n} min manually — Gitco did it automatically`,
     briefing: "✨ Today's briefing",
     iuButton: "📈 Investor update",
     iuCommand:

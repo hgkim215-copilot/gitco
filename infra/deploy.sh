@@ -42,10 +42,24 @@ echo ">> Building frontend (native) ..."
 echo ">> Building backend (native) ..."
 ( cd backend && npm run build )
 
-echo ">> Enabling ACR admin user ..."
+echo ">> Enabling ACR admin user (fallback while Managed Identity propagates) ..."
 az acr update -n "$ACR" --admin-enabled true >/dev/null
 ACR_USER=$(az acr credential show -n "$ACR" --query username -o tsv)
 ACR_PASS=$(az acr credential show -n "$ACR" --query "passwords[0].value" -o tsv)
+
+echo ">> Ensuring Managed Identity for ACR pull (idempotent) ..."
+# Assign system identity if not yet assigned
+az containerapp identity assign -n "$APP" -g "$RG" --system-assigned >/dev/null 2>&1 || true
+PRINCIPAL_ID=$(az containerapp show -n "$APP" -g "$RG" --query "identity.principalId" -o tsv 2>/dev/null)
+ACR_SCOPE=$(az acr show -n "$ACR" -g "$RG" --query id -o tsv 2>/dev/null)
+if [ -n "$PRINCIPAL_ID" ] && [ -n "$ACR_SCOPE" ]; then
+  az role assignment create --assignee-object-id "$PRINCIPAL_ID" \
+    --assignee-principal-type ServicePrincipal \
+    --role AcrPull --scope "$ACR_SCOPE" --output none 2>/dev/null || true
+  az containerapp registry set -n "$APP" -g "$RG" \
+    --server "$ACR.azurecr.io" --identity system --output none 2>/dev/null || true
+  echo "   Managed Identity AcrPull configured."
+fi
 
 echo ">> Building image locally (linux/amd64) ..."
 docker buildx build --platform linux/amd64 -t "$IMAGE" --load .

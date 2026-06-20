@@ -63,6 +63,7 @@ export default function App() {
   const [refineKey, setRefineKey] = useState<string | null>(null);
   const [verifying, setVerifying] = useState<string | null>(null);
   const [verifyResults, setVerifyResults] = useState<Record<string, VerifyResult>>({});
+  const [estimatedMinsSaved, setEstimatedMinsSaved] = useState<number>(0);
 
   async function onVerify(key: string, url: string, title: string) {
     setVerifying(key);
@@ -147,7 +148,10 @@ export default function App() {
       const unsub = subscribe(id, (ev: AgentEvent) => {
         if (ev.type === "delta") setStream((s) => s + ev.data);
         else if (ev.type === "memory") setRecalled(ev.data);
-        else if (ev.type === "plan") setPlan(ev.data.plan);
+        else if (ev.type === "plan") {
+          setPlan(ev.data.plan);
+          if (ev.data.estimatedMinsSaved) setEstimatedMinsSaved(ev.data.estimatedMinsSaved);
+        }
         else if (ev.type === "error") setError(ev.data);
         else if (ev.type === "done") {
           setRunning(false);
@@ -475,6 +479,9 @@ export default function App() {
               <div className="guard">{t.guard}</div>
               <div className="ai-note">
                 <span className="ai-tag">{t.aiGenerated}</span>
+                {estimatedMinsSaved > 0 && (
+                  <span className="time-saved">{t.timeSaved(estimatedMinsSaved)}</span>
+                )}
                 {info && (
                   <span className="ai-model">
                     {info.provider} · {info.model}
