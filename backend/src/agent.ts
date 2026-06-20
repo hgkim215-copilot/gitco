@@ -10,6 +10,7 @@ export type Plan = { summary: string; actions: Action[] };
 
 export type AgentEvent =
   | { type: "delta"; data: string }
+  | { type: "memory"; data: { text: string; kind: string; score: number }[] }
   | { type: "plan"; data: { planId: string; plan: Plan } }
   | { type: "error"; data: string }
   | { type: "done"; data: null };

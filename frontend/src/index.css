@@ -122,6 +122,68 @@ body {
   display: flex;
   gap: 8px;
   flex: none;
+  align-items: center;
+}
+.mem-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--accent2);
+  background: #f3edff;
+  border: 1px solid #e2d5ff;
+  border-radius: 999px;
+  padding: 7px 13px;
+  white-space: nowrap;
+}
+
+/* Recalled memories */
+.recalled {
+  margin-top: 12px;
+  background: #f7f3ff;
+  border: 1px solid #e6dbff;
+  border-radius: 12px;
+  padding: 12px 14px;
+  animation: fade-up 0.25s ease both;
+}
+.recalled-head {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--accent2);
+  margin-bottom: 8px;
+}
+.recalled-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.recalled-list li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  background: #fff;
+  border: 1px solid #ece3ff;
+  border-radius: 9px;
+  padding: 8px 11px;
+  animation: fade-up 0.3s ease both;
+}
+.recalled-text {
+  font-size: 13px;
+  color: var(--text-soft);
+}
+.recalled-score {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--accent2);
+  background: #f3edff;
+  border-radius: 6px;
+  padding: 2px 7px;
+  white-space: nowrap;
 }
 
 /* Guide modal */

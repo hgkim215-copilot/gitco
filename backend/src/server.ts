@@ -6,8 +6,10 @@ import { existsSync } from "node:fs";
 import fastifyStatic from "@fastify/static";
 import { loadConfig } from "./config.js";
 import { initDb, listTasks, listEvents, listDrafts, setTaskStatus, deleteTask, deleteEvent, deleteDraft } from "./db.js";
-import { planFromCommand, type AgentEvent, type Plan } from "./agent.js";
+import { planFromCommand, type AgentEvent, type Plan, type Action } from "./agent.js";
 import { applyPlan } from "./actions.js";
+import { embed } from "./embeddings.js";
+import { addMemory, searchMemories, countMemories } from "./memory.js";
 
 type Run = { buffer: AgentEvent[]; emit: ((e: AgentEvent) => void) | null; plan: Plan | null };
 
@@ -70,10 +72,25 @@ export function buildServer() {
     // Kick off the agent shortly after, so the client can subscribe to the stream.
     setTimeout(async () => {
       try {
+        // Semantic recall: find past items related to this command (Azure embeddings).
+        let recalledContext = "";
+        const queryVec = await embed(config, text);
+        if (queryVec) {
+          const recalled = searchMemories(db, queryVec, 3);
+          if (recalled.length) {
+            emitTo(runId, {
+              type: "memory",
+              data: recalled.map((m) => ({ text: m.text, kind: m.kind, score: m.score })),
+            });
+            recalledContext =
+              "\n\nRELEVANT MEMORIES (things the user did before — use them for context if helpful):\n" +
+              recalled.map((m) => `- (${m.kind}) ${m.text}`).join("\n");
+          }
+        }
         const plan = await planFromCommand({
           config,
           prompt: text,
-          context: buildContext(),
+          context: buildContext() + recalledContext,
           emit: (e) => emitTo(runId, e),
         });
         const run = runs.get(runId);
@@ -116,14 +133,36 @@ export function buildServer() {
     });
   });
 
+  function actionText(a: Action): string {
+    if (a.type === "create_task") return `할 일: ${a.data.title}`;
+    if (a.type === "schedule_event")
+      return `일정: ${a.data.title} (${a.data.start})`;
+    return `이메일 초안: ${a.data.subject}${a.data.to ? ` → ${a.data.to}` : ""}`;
+  }
+
+  app.get("/api/memories", async () => ({ count: countMemories(db) }));
+
   app.post("/api/approve", async (req) => {
     const { runId } = (req.body ?? {}) as { runId?: string };
     const run = runId ? runs.get(runId) : undefined;
     if (!run || !run.plan) return { error: "no pending plan" };
-    const applied = applyPlan(db, run.plan);
+    const plan = run.plan;
+    const applied = applyPlan(db, plan);
     run.plan = null;
     runs.delete(runId!);
-    return { applied, tasks: listTasks(db), events: listEvents(db), drafts: listDrafts(db) };
+    // Remember what was done (Azure embeddings) so future commands have context.
+    for (const action of plan.actions) {
+      const text = actionText(action);
+      const vec = await embed(config, text);
+      if (vec) addMemory(db, action.type, text, vec);
+    }
+    return {
+      applied,
+      tasks: listTasks(db),
+      events: listEvents(db),
+      drafts: listDrafts(db),
+      memoryCount: countMemories(db),
+    };
   });
 
   app.post("/api/reject", async (req) => {

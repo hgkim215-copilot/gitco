@@ -16,6 +16,8 @@ export type Strings = {
   planning: string;
   rawToggle: string;
   briefing: string;
+  recalled: string;
+  memBadge: string;
   copy: string;
   copied: string;
   del: string;
@@ -83,6 +85,8 @@ export const STRINGS: Record<Lang, Strings> = {
     planning: "깃코가 계획을 세우고 있어요…",
     rawToggle: "원문 보기",
     briefing: "✨ 오늘의 브리핑",
+    recalled: "🧠 깃코가 기억을 떠올렸어요",
+    memBadge: "기억",
     copy: "복사",
     copied: "복사됨",
     del: "삭제",
@@ -156,6 +160,8 @@ export const STRINGS: Record<Lang, Strings> = {
     planning: "Gitco is drafting a plan…",
     rawToggle: "Show raw",
     briefing: "✨ Today's briefing",
+    recalled: "🧠 Gitco recalled from memory",
+    memBadge: "memories",
     copy: "Copy",
     copied: "Copied",
     del: "Delete",

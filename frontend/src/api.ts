@@ -67,3 +67,12 @@ export async function deleteEvent(id: number): Promise<{ events: EventRow[] }> {
 export async function deleteDraft(id: number): Promise<{ drafts: Draft[] }> {
   return (await fetch(`/api/drafts/${id}`, { method: "DELETE" })).json();
 }
+
+export async function getMemoryCount(): Promise<number> {
+  try {
+    const r = await (await fetch("/api/memories")).json();
+    return r.count ?? 0;
+  } catch {
+    return 0;
+  }
+}

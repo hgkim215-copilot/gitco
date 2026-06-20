@@ -51,6 +51,13 @@ export function initDb(path = "data.db") {
       "to" TEXT,
       created_at TEXT DEFAULT (datetime('now'))
     );
+    CREATE TABLE IF NOT EXISTS memories(
+      id INTEGER PRIMARY KEY,
+      kind TEXT NOT NULL,
+      text TEXT NOT NULL,
+      vector TEXT NOT NULL,
+      created_at TEXT DEFAULT (datetime('now'))
+    );
   `);
   return db;
 }

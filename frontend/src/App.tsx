@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import type { Plan, Task, EventRow, Draft, AgentEvent } from "./types";
+import type { Plan, Task, EventRow, Draft, AgentEvent, RecalledMemory } from "./types";
 import { STRINGS, actionLabel, type Lang } from "./i18n";
 import {
   sendCommand,
@@ -13,6 +13,7 @@ import {
   deleteTask,
   deleteEvent,
   deleteDraft,
+  getMemoryCount,
 } from "./api";
 
 function priorityClass(p: string) {
@@ -35,6 +36,8 @@ export default function App() {
   const [showGuide, setShowGuide] = useState(false);
   const [showRaw, setShowRaw] = useState(false);
   const [copiedId, setCopiedId] = useState<number | null>(null);
+  const [recalled, setRecalled] = useState<RecalledMemory[]>([]);
+  const [memCount, setMemCount] = useState(0);
 
   const [tasks, setTasks] = useState<Task[]>([]);
   const [events, setEvents] = useState<EventRow[]>([]);
@@ -51,6 +54,7 @@ export default function App() {
 
   useEffect(() => {
     refresh();
+    getMemoryCount().then(setMemCount);
   }, []);
 
   async function run(cmd: string) {
@@ -60,11 +64,13 @@ export default function App() {
     setPlan(null);
     setError(null);
     setRunId(null);
+    setRecalled([]);
     try {
       const id = await sendCommand(cmd);
       setRunId(id);
       const unsub = subscribe(id, (ev: AgentEvent) => {
         if (ev.type === "delta") setStream((s) => s + ev.data);
+        else if (ev.type === "memory") setRecalled(ev.data);
         else if (ev.type === "plan") setPlan(ev.data.plan);
         else if (ev.type === "error") setError(ev.data);
         else if (ev.type === "done") {
@@ -88,6 +94,7 @@ export default function App() {
     } else {
       await refresh();
     }
+    if (typeof (res as any).memoryCount === "number") setMemCount((res as any).memoryCount);
     setPlan(null);
     setStream("");
     setRunId(null);
@@ -163,6 +170,11 @@ export default function App() {
           </div>
         </div>
         <div className="header-actions">
+          {memCount > 0 && (
+            <span className="mem-badge" title={t.recalled}>
+              🧠 {memCount} {t.memBadge}
+            </span>
+          )}
           <button className="lang" onClick={() => setShowGuide(true)}>
             ❔ {t.guideButton}
           </button>
@@ -229,12 +241,25 @@ export default function App() {
         </div>
       </section>
 
-      {(running || plan || error) && (
+      {(running || plan || error || recalled.length > 0) && (
         <section className="activity">
           <div className="activity-head">
             <span className="dot" data-on={running} /> {t.activity}
           </div>
           {error && <div className="err">⚠ {error}</div>}
+          {recalled.length > 0 && (
+            <div className="recalled">
+              <div className="recalled-head">{t.recalled}</div>
+              <ul className="recalled-list">
+                {recalled.map((m, i) => (
+                  <li key={i} style={{ animationDelay: `${i * 80}ms` }}>
+                    <span className="recalled-text">{m.text}</span>
+                    <span className="recalled-score">{Math.round(m.score * 100)}%</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
           {running && !plan && (
             <div className="planning">
               <span className="planning-avatar">🤖</span>

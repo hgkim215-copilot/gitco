@@ -29,8 +29,11 @@ export type Action =
 
 export type Plan = { summary: string; actions: Action[] };
 
+export type RecalledMemory = { text: string; kind: string; score: number };
+
 export type AgentEvent =
   | { type: "delta"; data: string }
+  | { type: "memory"; data: RecalledMemory[] }
   | { type: "plan"; data: { planId: string; plan: Plan } }
   | { type: "error"; data: string }
   | { type: "done"; data: null };
