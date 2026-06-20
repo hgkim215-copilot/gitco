@@ -13,6 +13,12 @@ export type Strings = {
   rec: string;
   scenarios: Scenario[];
   activity: string;
+  planning: string;
+  rawToggle: string;
+  briefing: string;
+  copy: string;
+  copied: string;
+  del: string;
   approve: string;
   discard: string;
   guard: string;
@@ -25,6 +31,7 @@ export type Strings = {
   noRecipient: string;
   langButton: string;
   guideButton: string;
+  briefingCommand: string;
   guide: {
     title: string;
     intro: string;
@@ -73,6 +80,12 @@ export const STRINGS: Record<Lang, Strings> = {
       },
     ],
     activity: "에이전트 활동",
+    planning: "깃코가 계획을 세우고 있어요…",
+    rawToggle: "원문 보기",
+    briefing: "✨ 오늘의 브리핑",
+    copy: "복사",
+    copied: "복사됨",
+    del: "삭제",
     approve: "✓ 승인하고 적용",
     discard: "✕ 취소",
     guard: "🔒 승인하기 전에는 아무것도 저장되지 않습니다.",
@@ -85,6 +98,8 @@ export const STRINGS: Record<Lang, Strings> = {
     noRecipient: "(받는 사람 없음)",
     langButton: "EN",
     guideButton: "사용 가이드",
+    briefingCommand:
+      "지금 등록된 할 일과 일정을 검토해서, 오늘 집중해야 할 우선순위를 정리하고 빠진 준비가 있으면 할 일로 추가해줘.",
     guide: {
       title: "이럴 때 써보세요",
       intro: "이 앱은 혼자 모든 걸 처리하는 1인 창업가를 위해 만들어졌습니다.",
@@ -138,6 +153,12 @@ export const STRINGS: Record<Lang, Strings> = {
       },
     ],
     activity: "Agent activity",
+    planning: "Gitco is drafting a plan…",
+    rawToggle: "Show raw",
+    briefing: "✨ Today's briefing",
+    copy: "Copy",
+    copied: "Copied",
+    del: "Delete",
     approve: "✓ Approve & apply",
     discard: "✕ Discard",
     guard: "🔒 Nothing is saved until you approve.",
@@ -151,6 +172,8 @@ export const STRINGS: Record<Lang, Strings> = {
     noRecipient: "(no recipient)",
     langButton: "한국어",
     guideButton: "How to use",
+    briefingCommand:
+      "Review my current tasks and events, lay out today's top priorities, and add any missing prep as tasks.",
     guide: {
       title: "When to use this",
       intro: "Built for the solo founder who does everything alone.",

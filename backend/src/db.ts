@@ -96,3 +96,24 @@ export function addDraft(
 export function listDrafts(db: Database.Database): Draft[] {
   return db.prepare(`SELECT * FROM drafts ORDER BY id DESC`).all() as Draft[];
 }
+
+export function setTaskStatus(
+  db: Database.Database,
+  id: number,
+  status: string,
+): Task | undefined {
+  db.prepare(`UPDATE tasks SET status=? WHERE id=?`).run(status, id);
+  return db.prepare(`SELECT * FROM tasks WHERE id=?`).get(id) as Task | undefined;
+}
+
+export function deleteTask(db: Database.Database, id: number): void {
+  db.prepare(`DELETE FROM tasks WHERE id=?`).run(id);
+}
+
+export function deleteEvent(db: Database.Database, id: number): void {
+  db.prepare(`DELETE FROM events WHERE id=?`).run(id);
+}
+
+export function deleteDraft(db: Database.Database, id: number): void {
+  db.prepare(`DELETE FROM drafts WHERE id=?`).run(id);
+}

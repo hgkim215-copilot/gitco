@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { initDb, addTask, listTasks, addEvent, listEvents, addDraft, listDrafts } from "./db.js";
+import { initDb, addTask, listTasks, addEvent, listEvents, addDraft, listDrafts, setTaskStatus, deleteTask, deleteDraft } from "./db.js";
 
 test("addTask then listTasks returns it", () => {
   const db = initDb(":memory:");
@@ -28,4 +28,21 @@ test("addDraft then listDrafts returns it", () => {
   assert.equal(d.subject, "Hi");
   assert.equal(d.to, "jane@x.com");
   assert.equal(listDrafts(db).length, 1);
+});
+
+test("setTaskStatus toggles status and deleteTask removes it", () => {
+  const db = initDb(":memory:");
+  const t = addTask(db, { title: "X" });
+  assert.equal(t.status, "open");
+  const done = setTaskStatus(db, t.id, "done");
+  assert.equal(done?.status, "done");
+  deleteTask(db, t.id);
+  assert.equal(listTasks(db).length, 0);
+});
+
+test("deleteDraft removes a draft", () => {
+  const db = initDb(":memory:");
+  const d = addDraft(db, { subject: "S", body: "B" });
+  deleteDraft(db, d.id);
+  assert.equal(listDrafts(db).length, 0);
 });

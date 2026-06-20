@@ -9,6 +9,10 @@ import {
   getTasks,
   getEvents,
   getDrafts,
+  toggleTask,
+  deleteTask,
+  deleteEvent,
+  deleteDraft,
 } from "./api";
 
 function priorityClass(p: string) {
@@ -29,6 +33,8 @@ export default function App() {
   const [error, setError] = useState<string | null>(null);
   const [listening, setListening] = useState(false);
   const [showGuide, setShowGuide] = useState(false);
+  const [showRaw, setShowRaw] = useState(false);
+  const [copiedId, setCopiedId] = useState<number | null>(null);
 
   const [tasks, setTasks] = useState<Task[]>([]);
   const [events, setEvents] = useState<EventRow[]>([]);
@@ -92,6 +98,32 @@ export default function App() {
     setPlan(null);
     setStream("");
     setRunId(null);
+  }
+
+  async function onToggleTask(id: number) {
+    const r = await toggleTask(id);
+    if (r.tasks) setTasks(r.tasks);
+  }
+  async function onDeleteTask(id: number) {
+    const r = await deleteTask(id);
+    if (r.tasks) setTasks(r.tasks);
+  }
+  async function onDeleteEvent(id: number) {
+    const r = await deleteEvent(id);
+    if (r.events) setEvents(r.events);
+  }
+  async function onDeleteDraft(id: number) {
+    const r = await deleteDraft(id);
+    if (r.drafts) setDrafts(r.drafts);
+  }
+  async function onCopyDraft(id: number, body: string, subject: string) {
+    try {
+      await navigator.clipboard.writeText(`${subject}\n\n${body}`);
+      setCopiedId(id);
+      setTimeout(() => setCopiedId(null), 1500);
+    } catch {
+      /* clipboard unavailable */
+    }
   }
 
   function toggleVoice() {
@@ -176,6 +208,13 @@ export default function App() {
           </div>
         </div>
         <div className="examples">
+          <button
+            className="briefing-btn"
+            onClick={() => run(t.briefingCommand)}
+            disabled={running}
+          >
+            {t.briefing}
+          </button>
           {t.scenarios.map((s, i) => (
             <button
               key={i}
@@ -190,19 +229,29 @@ export default function App() {
         </div>
       </section>
 
-      {(running || stream || plan || error) && (
+      {(running || plan || error) && (
         <section className="activity">
           <div className="activity-head">
             <span className="dot" data-on={running} /> {t.activity}
           </div>
           {error && <div className="err">⚠ {error}</div>}
-          {stream && <pre className="stream">{stream}</pre>}
+          {running && !plan && (
+            <div className="planning">
+              <span className="planning-avatar">🤖</span>
+              <span className="planning-text">{t.planning}</span>
+              <span className="typing">
+                <i></i>
+                <i></i>
+                <i></i>
+              </span>
+            </div>
+          )}
           {plan && (
             <div className="plan">
               <div className="plan-summary">{plan.summary}</div>
               <ul className="plan-actions">
                 {plan.actions.map((a, i) => (
-                  <li key={i}>
+                  <li key={i} style={{ animationDelay: `${i * 70}ms` }}>
                     <span className="atype">{actionLabel[lang][a.type] ?? a.type}</span>
                     <span className="adesc">
                       {a.type === "create_task" && (a.data as any).title}
@@ -225,16 +274,40 @@ export default function App() {
               <div className="guard">{t.guard}</div>
             </div>
           )}
+          {stream && (
+            <div className="raw">
+              <button className="raw-toggle" onClick={() => setShowRaw((v) => !v)}>
+                {t.rawToggle} {showRaw ? "▲" : "▼"}
+              </button>
+              {showRaw && <pre className="stream">{stream}</pre>}
+            </div>
+          )}
         </section>
       )}
 
       <section className="panels">
         <Panel title={t.tasks} count={tasks.length} empty={t.empty}>
           {tasks.map((tk) => (
-            <div className="card" key={tk.id}>
+            <div className={tk.status === "done" ? "card card-done" : "card"} key={tk.id}>
               <div className="card-top">
                 <span className={priorityClass(tk.priority)}>{tk.priority}</span>
-                {tk.due && <span className="due">{tk.due}</span>}
+                <div className="card-actions">
+                  {tk.due && <span className="due">{tk.due}</span>}
+                  <button
+                    className="icon-btn"
+                    title={t.approve}
+                    onClick={() => onToggleTask(tk.id)}
+                  >
+                    {tk.status === "done" ? "↺" : "✓"}
+                  </button>
+                  <button
+                    className="icon-btn icon-danger"
+                    title={t.del}
+                    onClick={() => onDeleteTask(tk.id)}
+                  >
+                    ✕
+                  </button>
+                </div>
               </div>
               <div className="card-title">{tk.title}</div>
             </div>
@@ -244,7 +317,16 @@ export default function App() {
         <Panel title={t.calendar} count={events.length} empty={t.empty}>
           {events.map((e) => (
             <div className="card" key={e.id}>
-              <div className="card-time">{e.start}</div>
+              <div className="card-top">
+                <span className="card-time">{e.start}</span>
+                <button
+                  className="icon-btn icon-danger"
+                  title={t.del}
+                  onClick={() => onDeleteEvent(e.id)}
+                >
+                  ✕
+                </button>
+              </div>
               <div className="card-title">{e.title}</div>
               {e.notes && <div className="card-notes">{e.notes}</div>}
             </div>
@@ -256,6 +338,22 @@ export default function App() {
             <div className="card" key={d.id}>
               <div className="card-top">
                 <span className="to">{d.to ?? t.noRecipient}</span>
+                <div className="card-actions">
+                  <button
+                    className="icon-btn"
+                    title={t.copy}
+                    onClick={() => onCopyDraft(d.id, d.body, d.subject)}
+                  >
+                    {copiedId === d.id ? "✓" : "⧉"}
+                  </button>
+                  <button
+                    className="icon-btn icon-danger"
+                    title={t.del}
+                    onClick={() => onDeleteDraft(d.id)}
+                  >
+                    ✕
+                  </button>
+                </div>
               </div>
               <div className="card-title">{d.subject}</div>
               <div className="card-body">{d.body}</div>

@@ -54,3 +54,16 @@ export async function getEvents(): Promise<EventRow[]> {
 export async function getDrafts(): Promise<Draft[]> {
   return (await fetch("/api/drafts")).json();
 }
+
+export async function toggleTask(id: number): Promise<{ tasks: Task[] }> {
+  return (await fetch(`/api/tasks/${id}/toggle`, { method: "POST" })).json();
+}
+export async function deleteTask(id: number): Promise<{ tasks: Task[] }> {
+  return (await fetch(`/api/tasks/${id}`, { method: "DELETE" })).json();
+}
+export async function deleteEvent(id: number): Promise<{ events: EventRow[] }> {
+  return (await fetch(`/api/events/${id}`, { method: "DELETE" })).json();
+}
+export async function deleteDraft(id: number): Promise<{ drafts: Draft[] }> {
+  return (await fetch(`/api/drafts/${id}`, { method: "DELETE" })).json();
+}

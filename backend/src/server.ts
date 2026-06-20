@@ -5,7 +5,7 @@ import { dirname, join } from "node:path";
 import { existsSync } from "node:fs";
 import fastifyStatic from "@fastify/static";
 import { loadConfig } from "./config.js";
-import { initDb, listTasks, listEvents, listDrafts } from "./db.js";
+import { initDb, listTasks, listEvents, listDrafts, setTaskStatus, deleteTask, deleteEvent, deleteDraft } from "./db.js";
 import { planFromCommand, type AgentEvent, type Plan } from "./agent.js";
 import { applyPlan } from "./actions.js";
 
@@ -40,6 +40,26 @@ export function buildServer() {
   app.get("/api/tasks", async () => listTasks(db));
   app.get("/api/events", async () => listEvents(db));
   app.get("/api/drafts", async () => listDrafts(db));
+
+  app.post("/api/tasks/:id/toggle", async (req) => {
+    const { id } = req.params as { id: string };
+    const current = listTasks(db).find((t) => t.id === Number(id));
+    const next = current?.status === "done" ? "open" : "done";
+    setTaskStatus(db, Number(id), next);
+    return { tasks: listTasks(db) };
+  });
+  app.delete("/api/tasks/:id", async (req) => {
+    deleteTask(db, Number((req.params as { id: string }).id));
+    return { tasks: listTasks(db) };
+  });
+  app.delete("/api/events/:id", async (req) => {
+    deleteEvent(db, Number((req.params as { id: string }).id));
+    return { events: listEvents(db) };
+  });
+  app.delete("/api/drafts/:id", async (req) => {
+    deleteDraft(db, Number((req.params as { id: string }).id));
+    return { drafts: listDrafts(db) };
+  });
 
   app.post("/api/command", async (req) => {
     const { text } = (req.body ?? {}) as { text?: string };
