@@ -55,7 +55,7 @@ export default function App() {
   const [briefings, setBriefings] = useState<Briefing[]>([]);
   const [profile, setProfile] = useState<Profile>({ industry: "", stage: "", interests: "" });
   const [showProfile, setShowProfile] = useState(false);
-  const [activeTab, setActiveTab] = useState<"workspace" | "updates" | "grants">("workspace");
+  const [activeTab, setActiveTab] = useState<"home" | "workspace" | "updates" | "grants">("home");
   const [info, setInfo] = useState<Info | null>(null);
   const [speakingId, setSpeakingId] = useState<string | null>(null);
 
@@ -450,6 +450,12 @@ export default function App() {
 
       <nav className="tabs">
         <button
+          className={activeTab === "home" ? "tab tab-on" : "tab"}
+          onClick={() => setActiveTab("home")}
+        >
+          {t.tabHome}
+        </button>
+        <button
           className={activeTab === "workspace" ? "tab tab-on" : "tab"}
           onClick={() => setActiveTab("workspace")}
         >
@@ -471,6 +477,68 @@ export default function App() {
           <span className="tab-count">{briefings.length}</span>
         </button>
       </nav>
+
+      {activeTab === "home" && (
+        <section className="home">
+          <div className="home-greeting">{t.homeGreeting}</div>
+          {(() => {
+            const dueTasks = tasks
+              .filter((tk) => tk.due && tk.status !== "done")
+              .sort((a, b) => (a.due! < b.due! ? -1 : 1))
+              .slice(0, 5);
+            const upEvents = [...events].sort((a, b) => (a.start < b.start ? -1 : 1)).slice(0, 5);
+            const grantPicks = briefings
+              .flatMap((b) => b.content.picks)
+              .sort((a, b) => (a.deadline < b.deadline ? -1 : 1))
+              .slice(0, 5);
+            const empty = !dueTasks.length && !upEvents.length && !grantPicks.length;
+            if (empty) return <div className="tab-empty">{t.homeAllClear}</div>;
+            return (
+              <div className="home-grid">
+                <div className="home-card">
+                  <div className="home-card-head">⏰ {t.homeDueTasks}</div>
+                  {dueTasks.length ? (
+                    dueTasks.map((tk) => (
+                      <div className="home-row" key={tk.id}>
+                        <span className="home-dday">{dday(tk.due!)}</span>
+                        <span className="home-row-title">{tk.title}</span>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="home-none">—</div>
+                  )}
+                </div>
+                <div className="home-card">
+                  <div className="home-card-head">📅 {t.homeTodayEvents}</div>
+                  {upEvents.length ? (
+                    upEvents.map((e) => (
+                      <div className="home-row" key={e.id}>
+                        <span className="home-time">{e.start.slice(0, 16).replace("T", " ")}</span>
+                        <span className="home-row-title">{e.title}</span>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="home-none">—</div>
+                  )}
+                </div>
+                <div className="home-card">
+                  <div className="home-card-head">📰 {t.homeImminentGrants}</div>
+                  {grantPicks.length ? (
+                    grantPicks.map((p, i) => (
+                      <div className="home-row" key={i}>
+                        <span className="home-dday">{dday(p.deadline)}</span>
+                        <span className="home-row-title">{p.title}</span>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="home-none">—</div>
+                  )}
+                </div>
+              </div>
+            );
+          })()}
+        </section>
+      )}
 
       {activeTab === "workspace" && (
       <section className="panels">

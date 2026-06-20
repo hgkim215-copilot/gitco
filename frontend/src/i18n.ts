@@ -41,6 +41,12 @@ export type Strings = {
   tabWorkspace: string;
   tabUpdates: string;
   tabGrants: string;
+  tabHome: string;
+  homeGreeting: string;
+  homeDueTasks: string;
+  homeTodayEvents: string;
+  homeImminentGrants: string;
+  homeAllClear: string;
   aiGenerated: string;
   trustNote: string;
   speak: string;
@@ -180,6 +186,12 @@ export const STRINGS: Record<Lang, Strings> = {
     tabWorkspace: "🗂 워크스페이스",
     tabUpdates: "📈 투자자 업데이트",
     tabGrants: "📰 공고",
+    tabHome: "🏠 오늘",
+    homeGreeting: "오늘 깃코가 챙긴 것들이에요",
+    homeDueTasks: "마감 임박 할 일",
+    homeTodayEvents: "다가오는 일정",
+    homeImminentGrants: "마감 임박 공고",
+    homeAllClear: "임박한 항목이 없어요. 좋아요! 👍",
     aiGenerated: "🤖 AI 생성",
     trustNote: "AI가 생성한 초안입니다. 보내기·등록 전에 직접 검토하세요. 수치·사실은 한 번 더 확인해 주세요.",
     speak: "🔊 읽어주기",
@@ -332,6 +344,12 @@ export const STRINGS: Record<Lang, Strings> = {
     tabWorkspace: "🗂 Workspace",
     tabUpdates: "📈 Investor updates",
     tabGrants: "📰 Grants",
+    tabHome: "🏠 Today",
+    homeGreeting: "Here's what Gitco is watching for you today",
+    homeDueTasks: "Tasks due soon",
+    homeTodayEvents: "Upcoming events",
+    homeImminentGrants: "Grants closing soon",
+    homeAllClear: "Nothing urgent. Nice! 👍",
     aiGenerated: "🤖 AI-generated",
     trustNote: "These are AI-generated drafts. Review before sending or saving, and double-check figures and facts.",
     speak: "🔊 Read aloud",
