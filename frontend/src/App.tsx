@@ -57,6 +57,24 @@ export default function App() {
   const [showProfile, setShowProfile] = useState(false);
   const [activeTab, setActiveTab] = useState<"workspace" | "updates" | "grants">("workspace");
   const [info, setInfo] = useState<Info | null>(null);
+  const [speakingId, setSpeakingId] = useState<string | null>(null);
+
+  function speak(id: string, text: string) {
+    const synth = (window as any).speechSynthesis;
+    if (!synth) return;
+    if (speakingId === id) {
+      synth.cancel();
+      setSpeakingId(null);
+      return;
+    }
+    synth.cancel();
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = lang === "ko" ? "ko-KR" : "en-US";
+    u.onend = () => setSpeakingId(null);
+    u.onerror = () => setSpeakingId(null);
+    setSpeakingId(id);
+    synth.speak(u);
+  }
 
   const recognitionRef = useRef<any>(null);
 
@@ -373,7 +391,15 @@ export default function App() {
           )}
           {plan && (
             <div className="plan">
-              <div className="plan-summary">{plan.summary}</div>
+              <div className="plan-summary">
+                <span>{plan.summary}</span>
+                <button
+                  className="speak-btn"
+                  onClick={() => speak("plan", plan.summary)}
+                >
+                  {speakingId === "plan" ? t.stopSpeak : t.speak}
+                </button>
+              </div>
               <ul className="plan-actions">
                 {plan.actions.map((a, i) => (
                   <li key={i} style={{ animationDelay: `${i * 70}ms` }}>
@@ -536,6 +562,18 @@ export default function App() {
                 <div className="card-actions">
                   <button
                     className="icon-btn"
+                    title={t.speak}
+                    onClick={() =>
+                      speak(
+                        `u${u.id}`,
+                        `${u.content.tldr}. ${u.content.metrics.map((m) => `${m.label} ${m.value}`).join(", ")}. ${u.content.highlights.join(". ")}`,
+                      )
+                    }
+                  >
+                    {speakingId === `u${u.id}` ? "⏹" : "🔊"}
+                  </button>
+                  <button
+                    className="icon-btn"
                     title={t.copy}
                     onClick={() => onCopyUpdate(u)}
                   >
@@ -610,13 +648,29 @@ export default function App() {
             <div className="report" key={b.id}>
               <div className="report-head">
                 <div className="report-period">📰 {b.content.picks.length}</div>
-                <button
-                  className="icon-btn icon-danger"
-                  title={t.del}
-                  onClick={() => onDeleteBriefing(b.id)}
-                >
-                  ✕
-                </button>
+                <div className="card-actions">
+                  <button
+                    className="icon-btn"
+                    title={t.speak}
+                    onClick={() =>
+                      speak(
+                        `b${b.id}`,
+                        b.content.picks
+                          .map((p) => `${p.title}, ${t.anDeadline} ${p.deadline}. ${p.fit_reason}`)
+                          .join(". "),
+                      )
+                    }
+                  >
+                    {speakingId === `b${b.id}` ? "⏹" : "🔊"}
+                  </button>
+                  <button
+                    className="icon-btn icon-danger"
+                    title={t.del}
+                    onClick={() => onDeleteBriefing(b.id)}
+                  >
+                    ✕
+                  </button>
+                </div>
               </div>
               <div className="grant-list">
                 {b.content.picks.map((p, i) => (

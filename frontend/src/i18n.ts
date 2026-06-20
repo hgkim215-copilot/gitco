@@ -43,6 +43,8 @@ export type Strings = {
   tabGrants: string;
   aiGenerated: string;
   trustNote: string;
+  speak: string;
+  stopSpeak: string;
   sourceLive: string;
   sourceSeed: string;
   poweredBy: string;
@@ -180,6 +182,8 @@ export const STRINGS: Record<Lang, Strings> = {
     tabGrants: "📰 공고",
     aiGenerated: "🤖 AI 생성",
     trustNote: "AI가 생성한 초안입니다. 보내기·등록 전에 직접 검토하세요. 수치·사실은 한 번 더 확인해 주세요.",
+    speak: "🔊 읽어주기",
+    stopSpeak: "⏹ 정지",
     sourceLive: "실시간",
     sourceSeed: "샘플 데이터",
     poweredBy: "Azure OpenAI",
@@ -330,6 +334,8 @@ export const STRINGS: Record<Lang, Strings> = {
     tabGrants: "📰 Grants",
     aiGenerated: "🤖 AI-generated",
     trustNote: "These are AI-generated drafts. Review before sending or saving, and double-check figures and facts.",
+    speak: "🔊 Read aloud",
+    stopSpeak: "⏹ Stop",
     sourceLive: "live",
     sourceSeed: "sample data",
     poweredBy: "Azure OpenAI",
