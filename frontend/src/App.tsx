@@ -649,9 +649,50 @@ function ProfileModal({
   onClose: () => void;
   onSave: (p: Profile) => void;
 }) {
-  const [industry, setIndustry] = useState(profile.industry);
-  const [stage, setStage] = useState(profile.stage);
-  const [interests, setInterests] = useState(profile.interests);
+  // Single-select: returns the chosen option, or "" plus an "other" text.
+  function parseSingle(value: string, options: string[]) {
+    if (options.includes(value)) return { sel: value, other: "" };
+    return { sel: value ? t.otherLabel : "", other: value };
+  }
+  // Multi-select: split by comma, known -> chips, unknown -> other text.
+  function parseMulti(value: string, options: string[]) {
+    const parts = value.split(",").map((s) => s.trim()).filter(Boolean);
+    const sel = parts.filter((p) => options.includes(p));
+    const other = parts.filter((p) => !options.includes(p)).join(", ");
+    return { sel, other };
+  }
+
+  const ind0 = parseSingle(profile.industry, t.industryOptions);
+  const stg0 = parseSingle(profile.stage, t.stageOptions);
+  const int0 = parseMulti(profile.interests, t.interestOptions);
+
+  const [industry, setIndustry] = useState(ind0.sel);
+  const [industryOther, setIndustryOther] = useState(ind0.other);
+  const [stage, setStage] = useState(stg0.sel);
+  const [stageOther, setStageOther] = useState(stg0.other);
+  const [interests, setInterests] = useState<string[]>(int0.sel);
+  const [interestsOther, setInterestsOther] = useState(int0.other);
+
+  function toggleInterest(opt: string) {
+    setInterests((prev) =>
+      prev.includes(opt) ? prev.filter((x) => x !== opt) : [...prev, opt],
+    );
+  }
+
+  function save() {
+    const industryVal = industry === t.otherLabel ? industryOther.trim() : industry;
+    const stageVal = stage === t.otherLabel ? stageOther.trim() : stage;
+    const interestVals = [
+      ...interests,
+      ...interestsOther.split(",").map((s) => s.trim()).filter(Boolean),
+    ];
+    onSave({
+      industry: industryVal,
+      stage: stageVal,
+      interests: interestVals.join(", "),
+    });
+  }
+
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal modal-sm" onClick={(e) => e.stopPropagation()}>
@@ -661,14 +702,70 @@ function ProfileModal({
             ✕
           </button>
         </div>
+
         <label className="field-label">{t.profileIndustry}</label>
-        <input className="field" value={industry} onChange={(e) => setIndustry(e.target.value)} placeholder="예: B2B SaaS (AI 분석 툴)" />
+        <div className="opt-row">
+          {[...t.industryOptions, t.otherLabel].map((opt) => (
+            <button
+              key={opt}
+              className={industry === opt ? "opt opt-on" : "opt"}
+              onClick={() => setIndustry(industry === opt ? "" : opt)}
+            >
+              {opt}
+            </button>
+          ))}
+        </div>
+        {industry === t.otherLabel && (
+          <input
+            className="field"
+            value={industryOther}
+            onChange={(e) => setIndustryOther(e.target.value)}
+            placeholder={t.otherPlaceholder}
+          />
+        )}
+
         <label className="field-label">{t.profileStage}</label>
-        <input className="field" value={stage} onChange={(e) => setStage(e.target.value)} placeholder="예: 예비창업 (사업자등록 전)" />
+        <div className="opt-row">
+          {[...t.stageOptions, t.otherLabel].map((opt) => (
+            <button
+              key={opt}
+              className={stage === opt ? "opt opt-on" : "opt"}
+              onClick={() => setStage(stage === opt ? "" : opt)}
+            >
+              {opt}
+            </button>
+          ))}
+        </div>
+        {stage === t.otherLabel && (
+          <input
+            className="field"
+            value={stageOther}
+            onChange={(e) => setStageOther(e.target.value)}
+            placeholder={t.otherPlaceholder}
+          />
+        )}
+
         <label className="field-label">{t.profileInterests}</label>
-        <input className="field" value={interests} onChange={(e) => setInterests(e.target.value)} placeholder="예: R&D 자금, 글로벌 진출, TIPS" />
+        <div className="opt-row">
+          {t.interestOptions.map((opt) => (
+            <button
+              key={opt}
+              className={interests.includes(opt) ? "opt opt-on" : "opt"}
+              onClick={() => toggleInterest(opt)}
+            >
+              {opt}
+            </button>
+          ))}
+        </div>
+        <input
+          className="field"
+          value={interestsOther}
+          onChange={(e) => setInterestsOther(e.target.value)}
+          placeholder={`${t.otherLabel} — ${t.otherPlaceholder}`}
+        />
+
         <div className="modal-foot">
-          <button className="approve" onClick={() => onSave({ industry, stage, interests })}>
+          <button className="approve" onClick={save}>
             {t.profileSave}
           </button>
         </div>

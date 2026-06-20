@@ -32,6 +32,11 @@ export type Strings = {
   profileInterests: string;
   profileSave: string;
   profileSaved: string;
+  otherLabel: string;
+  otherPlaceholder: string;
+  industryOptions: string[];
+  stageOptions: string[];
+  interestOptions: string[];
   iuPanel: string;
   iuTldr: string;
   iuMetrics: string;
@@ -130,6 +135,37 @@ export const STRINGS: Record<Lang, Strings> = {
     profileInterests: "관심 분야",
     profileSave: "저장",
     profileSaved: "저장됨 ✓",
+    otherLabel: "기타",
+    otherPlaceholder: "직접 입력 (쉼표로 구분)",
+    industryOptions: [
+      "B2B SaaS",
+      "B2C 앱/플랫폼",
+      "이커머스/D2C",
+      "핀테크",
+      "헬스케어/바이오",
+      "AI/딥테크",
+      "제조/하드웨어",
+      "콘텐츠/미디어",
+      "교육(에듀테크)",
+      "게임",
+    ],
+    stageOptions: [
+      "예비창업 (사업자등록 전)",
+      "초기창업 (3년 이내)",
+      "도약기 (3~7년)",
+      "재창업",
+    ],
+    interestOptions: [
+      "R&D 자금",
+      "사업화 자금",
+      "글로벌 진출",
+      "TIPS/투자연계",
+      "바우처",
+      "보육/입주공간",
+      "멘토링",
+      "마케팅/판로",
+      "인력 채용",
+    ],
     iuPanel: "📈 투자자 업데이트",
     iuTldr: "요약",
     iuMetrics: "핵심 지표",
@@ -241,6 +277,37 @@ export const STRINGS: Record<Lang, Strings> = {
     profileInterests: "Interests",
     profileSave: "Save",
     profileSaved: "Saved ✓",
+    otherLabel: "Other",
+    otherPlaceholder: "Type here (comma-separated)",
+    industryOptions: [
+      "B2B SaaS",
+      "Consumer app/platform",
+      "E-commerce/D2C",
+      "Fintech",
+      "Healthcare/Bio",
+      "AI/Deeptech",
+      "Manufacturing/Hardware",
+      "Content/Media",
+      "Education (Edtech)",
+      "Games",
+    ],
+    stageOptions: [
+      "Pre-startup (before registration)",
+      "Early (within 3 years)",
+      "Growth (3-7 years)",
+      "Re-founding",
+    ],
+    interestOptions: [
+      "R&D funding",
+      "Commercialization funding",
+      "Global expansion",
+      "TIPS/Investment-linked",
+      "Vouchers",
+      "Incubation/Office space",
+      "Mentoring",
+      "Marketing/Sales channels",
+      "Hiring",
+    ],
     iuPanel: "📈 Investor Updates",
     iuTldr: "TL;DR",
     iuMetrics: "Key metrics",
