@@ -41,6 +41,11 @@ export type Strings = {
   tabWorkspace: string;
   tabUpdates: string;
   tabGrants: string;
+  aiGenerated: string;
+  trustNote: string;
+  sourceLive: string;
+  sourceSeed: string;
+  poweredBy: string;
   iuTldr: string;
   iuMetrics: string;
   iuHighlights: string;
@@ -173,6 +178,11 @@ export const STRINGS: Record<Lang, Strings> = {
     tabWorkspace: "🗂 워크스페이스",
     tabUpdates: "📈 투자자 업데이트",
     tabGrants: "📰 공고",
+    aiGenerated: "🤖 AI 생성",
+    trustNote: "AI가 생성한 초안입니다. 보내기·등록 전에 직접 검토하세요. 수치·사실은 한 번 더 확인해 주세요.",
+    sourceLive: "실시간",
+    sourceSeed: "샘플 데이터",
+    poweredBy: "Azure OpenAI",
     iuTldr: "요약",
     iuMetrics: "핵심 지표",
     iuHighlights: "하이라이트",
@@ -318,6 +328,11 @@ export const STRINGS: Record<Lang, Strings> = {
     tabWorkspace: "🗂 Workspace",
     tabUpdates: "📈 Investor updates",
     tabGrants: "📰 Grants",
+    aiGenerated: "🤖 AI-generated",
+    trustNote: "These are AI-generated drafts. Review before sending or saving, and double-check figures and facts.",
+    sourceLive: "live",
+    sourceSeed: "sample data",
+    poweredBy: "Azure OpenAI",
     iuTldr: "TL;DR",
     iuMetrics: "Key metrics",
     iuHighlights: "Highlights",

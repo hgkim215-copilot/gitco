@@ -21,6 +21,8 @@ import {
   getBriefings,
   deleteBriefing,
   createTask,
+  getInfo,
+  type Info,
 } from "./api";
 
 function priorityClass(p: string) {
@@ -54,6 +56,7 @@ export default function App() {
   const [profile, setProfile] = useState<Profile>({ industry: "", stage: "", interests: "" });
   const [showProfile, setShowProfile] = useState(false);
   const [activeTab, setActiveTab] = useState<"workspace" | "updates" | "grants">("workspace");
+  const [info, setInfo] = useState<Info | null>(null);
 
   const recognitionRef = useRef<any>(null);
 
@@ -76,6 +79,7 @@ export default function App() {
     refresh();
     getMemoryCount().then(setMemCount);
     getProfile().then(setProfile);
+    getInfo().then(setInfo).catch(() => {});
   }, []);
 
   async function run(cmd: string, mode?: string) {
@@ -397,6 +401,14 @@ export default function App() {
                 </button>
               </div>
               <div className="guard">{t.guard}</div>
+              <div className="ai-note">
+                <span className="ai-tag">{t.aiGenerated}</span>
+                {info && (
+                  <span className="ai-model">
+                    {info.provider} · {info.model}
+                  </span>
+                )}
+              </div>
             </div>
           )}
           {stream && (
@@ -520,7 +532,7 @@ export default function App() {
           {updates.map((u) => (
             <div className="report" key={u.id}>
               <div className="report-head">
-                <div className="report-period">📈 {u.period}</div>
+                <div className="report-period">📈 {u.period} <span className="ai-tag sm">{t.aiGenerated}</span></div>
                 <div className="card-actions">
                   <button
                     className="icon-btn"
@@ -586,7 +598,14 @@ export default function App() {
       {activeTab === "grants" && (
         briefings.length > 0 ? (
         <section className="updates">
-          <div className="updates-head">{t.anPanel}</div>
+          <div className="updates-head">
+            {t.anPanel}
+            {info && (
+              <span className={info.announcementsSource === "live" ? "src-badge src-live" : "src-badge"}>
+                {info.announcementsSource === "live" ? t.sourceLive : t.sourceSeed}
+              </span>
+            )}
+          </div>
           {briefings.map((b) => (
             <div className="report" key={b.id}>
               <div className="report-head">
@@ -640,7 +659,10 @@ export default function App() {
         )
       )}
 
-      <footer className="footer">{t.footer}</footer>
+      <footer className="footer">
+        <div className="trust-note">🛡 {t.trustNote}</div>
+        {info ? `${info.provider} · ${info.model} · ${info.embedModel}` : t.footer}
+      </footer>
     </div>
   );
 }

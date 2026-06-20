@@ -77,6 +77,16 @@ export async function getMemoryCount(): Promise<number> {
   }
 }
 
+export type Info = {
+  model: string;
+  embedModel: string;
+  provider: string;
+  announcementsSource: "live" | "seed";
+};
+export async function getInfo(): Promise<Info> {
+  return (await fetch("/api/info")).json();
+}
+
 export async function getUpdates(): Promise<InvestorUpdate[]> {
   return (await fetch("/api/updates")).json();
 }

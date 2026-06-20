@@ -45,6 +45,15 @@ export function buildServer() {
   }
 
   app.get("/api/health", async () => ({ ok: true }));
+  app.get("/api/info", async () => {
+    const { source } = await getAnnouncements();
+    return {
+      model: config.azureDeployment,
+      embedModel: config.azureEmbedDeployment,
+      provider: "Azure OpenAI",
+      announcementsSource: source,
+    };
+  });
   app.get("/api/tasks", async () => listTasks(db));
   app.get("/api/events", async () => listEvents(db));
   app.get("/api/drafts", async () => listDrafts(db));
