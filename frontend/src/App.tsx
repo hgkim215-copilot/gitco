@@ -125,6 +125,7 @@ export default function App() {
         <div className="brand">
           <span className="logo">◆</span>
           <div>
+            <div className="eyebrow">{t.tagline}</div>
             <h1>{t.title}</h1>
             <p>{t.subtitle}</p>
           </div>

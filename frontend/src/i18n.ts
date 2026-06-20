@@ -4,6 +4,7 @@ export type Scenario = { label: string; command: string };
 
 export type Strings = {
   title: string;
+  tagline: string;
   subtitle: string;
   placeholder: string;
   run: string;
@@ -41,8 +42,9 @@ export type Strings = {
 export const STRINGS: Record<Lang, Strings> = {
   ko: {
     title: "깃코",
+    tagline: "1인 창업가를 위한 AI 비서",
     subtitle:
-      "깃코는 1인 창업가를 위한 AI 비서예요. 목표를 알려주시면 Azure OpenAI 위에서 할 일·일정·이메일 초안을 계획합니다. 저장하기 전에 직접 승인하세요.",
+      "목표를 알려주시면 Azure OpenAI 위에서 할 일·일정·이메일 초안을 계획합니다. 저장하기 전에 직접 승인하세요.",
     placeholder: "예: 다음 주 화요일 오후 2시에 투자자 미팅을 잡고 후속 이메일 초안을 써줘…",
     run: "실행 ⌘↵",
     thinking: "생각 중…",
@@ -104,8 +106,9 @@ export const STRINGS: Record<Lang, Strings> = {
   },
   en: {
     title: "Gitco",
+    tagline: "An AI secretary for solo founders",
     subtitle:
-      "Gitco is an AI secretary for solo founders. Tell it a goal — it plans tasks, events & email drafts on Azure OpenAI. You approve before anything is saved.",
+      "Tell it a goal — it plans tasks, events & email drafts on Azure OpenAI. You approve before anything is saved.",
     placeholder:
       "e.g. Schedule an investor meeting next Tuesday at 2pm and draft a follow-up email…",
     run: "Run ⌘↵",
