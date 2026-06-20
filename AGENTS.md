@@ -56,11 +56,16 @@ npm run build          # -> frontend/dist
 
 ## Azure resources (already provisioned)
 - Resource group `rg-lipcoding2026`, region `eastus2`.
-- Azure OpenAI `aoai-lip2026`, deployment `gpt-4.1-mini` (GlobalStandard).
+- Azure OpenAI `aoai-lip2026`, deployments `gpt-4.1-mini` + `text-embedding-3-small` (GlobalStandard).
 - ACR `ca74949c518eacr`, Container App env `lip-env`, app `ai-chief-of-staff`.
-- Note: this subscription has **ACR Tasks (cloud build) disabled**, so images are built
-  locally and pushed (`infra/deploy.sh`). Build amd64 (`--platform linux/amd64`); Container
-  Apps does not run arm64.
+- **Persistence:** Storage account `stlipcoding35567`, Azure Files share `gitcodata` mounted at `/data`
+  in the container; `DB_PATH=/data/data.db` so the SQLite DB survives restarts/redeploys. On the SMB
+  mount the DB uses `journal_mode=DELETE` (WAL needs shared memory unavailable on SMB); single replica
+  (min=max=1) means no concurrent writers. `infra/deploy.sh` provisions the storage idempotently; the
+  volume mount itself was applied once via a YAML patch (`az containerapp update --yaml`).
+- Observability: Container Apps streams logs to the env's Log Analytics workspace.
+- Note: this subscription has **ACR Tasks (cloud build) disabled**, so images are built locally and
+  pushed (`infra/deploy.sh`). Build amd64; Container Apps does not run arm64.
 
 ## Conventions
 - TypeScript ESM with `.js` import specifiers (required for `tsc` build; `tsx` resolves them in dev).

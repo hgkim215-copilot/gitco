@@ -1,4 +1,6 @@
 import Database from "better-sqlite3";
+import { mkdirSync } from "node:fs";
+import { dirname } from "node:path";
 
 export type Task = {
   id: number;
@@ -52,8 +54,19 @@ export type Briefing = {
 };
 
 export function initDb(path = "data.db") {
+  if (path !== ":memory:") {
+    try {
+      mkdirSync(dirname(path), { recursive: true });
+    } catch {
+      /* dir may already exist */
+    }
+  }
   const db = new Database(path);
-  db.pragma("journal_mode = WAL");
+  // On Azure Files (SMB), WAL needs shared memory which SMB doesn't support.
+  // We run a single replica (no concurrent writers), so a journal mode that
+  // works over network shares is the safe choice. Allow override via env.
+  const journal = process.env.SQLITE_JOURNAL_MODE ?? (path.startsWith("/data") ? "DELETE" : "WAL");
+  db.pragma(`journal_mode = ${journal}`);
   db.exec(`
     CREATE TABLE IF NOT EXISTS tasks(
       id INTEGER PRIMARY KEY,

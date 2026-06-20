@@ -16,8 +16,24 @@ LOC=eastus2
 APP=ai-chief-of-staff
 ENVNAME=lip-env
 ACR=ca74949c518eacr
+SA="${AZURE_STORAGE_ACCOUNT:-stlipcoding35567}"
+SHARE=gitcodata
 TAG="$(date +%Y%m%d%H%M%S)"
 IMAGE="$ACR.azurecr.io/$APP:$TAG"
+
+# --- Persistence: Azure Files share mounted at /data (idempotent) ---
+echo ">> Ensuring Azure Files persistence ..."
+az provider register -n Microsoft.Storage >/dev/null 2>&1 || true
+if ! az storage account show -g "$RG" -n "$SA" >/dev/null 2>&1; then
+  az storage account create -g "$RG" -n "$SA" -l "$LOC" --sku Standard_LRS --kind StorageV2 >/dev/null
+fi
+SA_KEY=$(az storage account keys list -g "$RG" -n "$SA" --query "[0].value" -o tsv)
+az storage share-rm show -g "$RG" --storage-account "$SA" -n "$SHARE" >/dev/null 2>&1 \
+  || az storage share-rm create -g "$RG" --storage-account "$SA" -n "$SHARE" --quota 5 >/dev/null
+az containerapp env storage set -g "$RG" -n "$ENVNAME" \
+  --storage-name "$SHARE" --azure-file-account-name "$SA" \
+  --azure-file-account-key "$SA_KEY" --azure-file-share-name "$SHARE" \
+  --access-mode ReadWrite >/dev/null 2>&1 || true
 
 # Pre-build locally (native) — avoids vite/tsc segfaults under amd64 emulation.
 export PATH="$HOME/.nvm/versions/node/v22.22.2/bin:$PATH"
@@ -54,7 +70,9 @@ else
     --env-vars \
       AZURE_OPENAI_ENDPOINT="$AZURE_OPENAI_ENDPOINT" \
       AZURE_OPENAI_DEPLOYMENT="${AZURE_OPENAI_DEPLOYMENT:-gpt-4.1-mini}" \
+      DB_PATH=/data/data.db \
       AZURE_OPENAI_API_KEY=secretref:aoai-key >/dev/null
+  echo "   NOTE: mount the '$SHARE' volume at /data via YAML patch (see docs/AGENTS.md)."
 fi
 
 FQDN=$(az containerapp show -n "$APP" -g "$RG" --query properties.configuration.ingress.fqdn -o tsv)

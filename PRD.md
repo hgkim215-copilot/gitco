@@ -91,7 +91,8 @@
 ## 아키텍처
 - 프론트: React + Vite (단일 SPA), 백엔드: Node 22 + Fastify (SSE 스트리밍)
 - AI: GitHub Copilot SDK(BYOK) → Azure OpenAI `gpt-4.1-mini` + `text-embedding-3-small`
-- 저장: SQLite(better-sqlite3) · 배포: 단일 컨테이너 → Azure Container Registry → Azure Container Apps
+- 저장: SQLite(better-sqlite3), **Azure Files 볼륨 마운트(`/data`)로 영속화 — 컨테이너 재시작에도 데이터 유지**
+- 배포: 단일 컨테이너 → Azure Container Registry → Azure Container Apps, 로그는 Azure Log Analytics로 수집
 
 ### 액션 타입
 `create_task`, `schedule_event`, `draft_email`, `investor_update`, `announcement_briefing`
