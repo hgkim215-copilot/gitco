@@ -43,6 +43,11 @@ export type Strings = {
     whenTitle: string;
     whyTitle: string;
     why: string[];
+    memoryTitle: string;
+    memoryDesc: string;
+    memoryStep1: Scenario;
+    memoryStep2: Scenario;
+    memoryNote: string;
     tryHint: string;
     close: string;
   };
@@ -119,6 +124,18 @@ export const STRINGS: Record<Lang, Strings> = {
         "맥락 유지 — 현재 할 일·일정을 AI가 참고해 계획, 매번 설명할 필요 없음",
         "음성 입력 — 손이 바쁠 때 말로 던지면 끝",
       ],
+      memoryTitle: "🧠 기억 활용하기",
+      memoryDesc:
+        "깃코는 승인한 할 일·일정·메일을 Azure 임베딩으로 기억해요. 아래 두 단계를 순서대로 눌러보세요. 2단계에서 깃코가 1단계의 기억을 떠올립니다.",
+      memoryStep1: {
+        label: "① 먼저 실행 — 기억 만들기",
+        command: "그린컴퍼니 김민수 대표와 다음 주 수요일 오후 3시에 시리즈A 투자 미팅을 잡아줘.",
+      },
+      memoryStep2: {
+        label: "② 그다음 실행 — 기억 떠올리기",
+        command: "김민수 대표한테 보낼 투자 미팅 후속 감사 메일 초안을 써줘.",
+      },
+      memoryNote: "2단계 실행 시 활동 패널에 “🧠 깃코가 기억을 떠올렸어요”가 나타납니다.",
       tryHint: "시나리오를 누르면 입력창에 채워집니다. 실행만 누르세요.",
       close: "닫기",
     },
@@ -195,6 +212,18 @@ export const STRINGS: Record<Lang, Strings> = {
         "Context-aware — the agent reads current tasks/events, no need to re-explain",
         "Voice input — just say it when your hands are busy",
       ],
+      memoryTitle: "🧠 Using memory",
+      memoryDesc:
+        "Gitco remembers approved tasks, events, and emails via Azure embeddings. Run the two steps below in order — in step 2 Gitco recalls what you did in step 1.",
+      memoryStep1: {
+        label: "① Run first — create a memory",
+        command: "Schedule a Series A investor meeting with CEO Minsu Kim of GreenCompany next Wednesday at 3pm.",
+      },
+      memoryStep2: {
+        label: "② Then run — recall the memory",
+        command: "Draft a follow-up thank-you email to Minsu Kim about the investor meeting.",
+      },
+      memoryNote: "On step 2, the activity panel shows “🧠 Gitco recalled from memory”.",
       tryHint: "Tap a scenario to fill the command box, then hit Run.",
       close: "Close",
     },

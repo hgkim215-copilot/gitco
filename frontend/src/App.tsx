@@ -465,6 +465,20 @@ function GuideModal({
           ))}
         </ul>
 
+        <div className="guide-section-title">{t.guide.memoryTitle}</div>
+        <div className="memory-guide">
+          <p className="memory-desc">{t.guide.memoryDesc}</p>
+          <button className="scenario-card step" onClick={() => onPick(t.guide.memoryStep1.command)}>
+            <span className="scenario-label">{t.guide.memoryStep1.label}</span>
+            <span className="scenario-cmd">{t.guide.memoryStep1.command}</span>
+          </button>
+          <button className="scenario-card step" onClick={() => onPick(t.guide.memoryStep2.command)}>
+            <span className="scenario-label">{t.guide.memoryStep2.label}</span>
+            <span className="scenario-cmd">{t.guide.memoryStep2.command}</span>
+          </button>
+          <div className="memory-note">{t.guide.memoryNote}</div>
+        </div>
+
         <div className="modal-foot">
           <button className="approve" onClick={onClose}>
             {t.guide.close}
