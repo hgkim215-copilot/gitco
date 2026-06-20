@@ -31,6 +31,8 @@ Rules:
 - Use only the three action types above.
 - Resolve relative dates (e.g. "next Tuesday") to concrete ISO dates based on the provided current date.
 - Keep email bodies concise and professional.
+- Write the "summary" and ALL human-readable content (task titles, event titles, notes, email subject and body) in the SAME language as the user's GOAL. If the goal is written in Korean, respond in Korean; if in English, respond in English.
+- The JSON keys and action "type" values must stay exactly as specified in English.
 - Do NOT use any tools. Output JSON only.`;
 
 let clientPromise: Promise<CopilotClient> | null = null;

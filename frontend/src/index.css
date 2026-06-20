@@ -39,6 +39,24 @@ body {
 
 .header {
   margin-bottom: 22px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+}
+.lang {
+  flex: none;
+  background: #1d2750;
+  color: var(--text);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 8px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.lang:hover {
+  border-color: var(--accent);
 }
 .brand {
   display: flex;

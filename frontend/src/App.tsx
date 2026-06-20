@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import type { Plan, Task, EventRow, Draft, AgentEvent } from "./types";
+import { STRINGS, actionLabel, type Lang } from "./i18n";
 import {
   sendCommand,
   subscribe,
@@ -10,12 +11,6 @@ import {
   getDrafts,
 } from "./api";
 
-const EXAMPLES = [
-  "Schedule an investor meeting next Tuesday at 2pm and create a high-priority task to prepare the pitch deck.",
-  "Draft a follow-up email to Jane about the demo and add a task to send it tomorrow.",
-  "Plan my product launch: add 3 tasks and schedule a kickoff call Friday morning.",
-];
-
 function priorityClass(p: string) {
   if (p === "high") return "pill pill-high";
   if (p === "low") return "pill pill-low";
@@ -23,6 +18,9 @@ function priorityClass(p: string) {
 }
 
 export default function App() {
+  const [lang, setLang] = useState<Lang>("ko");
+  const t = STRINGS[lang];
+
   const [text, setText] = useState("");
   const [running, setRunning] = useState(false);
   const [stream, setStream] = useState("");
@@ -98,7 +96,7 @@ export default function App() {
   function toggleVoice() {
     const SR = (window as any).webkitSpeechRecognition || (window as any).SpeechRecognition;
     if (!SR) {
-      setError("Voice input is not supported in this browser.");
+      setError(t.voiceUnsupported);
       return;
     }
     if (listening) {
@@ -107,12 +105,12 @@ export default function App() {
       return;
     }
     const rec = new SR();
-    rec.lang = "en-US";
+    rec.lang = lang === "ko" ? "ko-KR" : "en-US";
     rec.interimResults = true;
     rec.onresult = (e: any) => {
-      let t = "";
-      for (let i = 0; i < e.results.length; i++) t += e.results[i][0].transcript;
-      setText(t);
+      let txt = "";
+      for (let i = 0; i < e.results.length; i++) txt += e.results[i][0].transcript;
+      setText(txt);
     };
     rec.onend = () => setListening(false);
     rec.start();
@@ -126,20 +124,20 @@ export default function App() {
         <div className="brand">
           <span className="logo">◆</span>
           <div>
-            <h1>AI Chief of Staff</h1>
-            <p>
-              Tell me a goal — I'll plan tasks, events &amp; email drafts on Azure OpenAI. You approve
-              before anything is saved.
-            </p>
+            <h1>{t.title}</h1>
+            <p>{t.subtitle}</p>
           </div>
         </div>
+        <button className="lang" onClick={() => setLang(lang === "ko" ? "en" : "ko")}>
+          {t.langButton}
+        </button>
       </header>
 
       <section className="command">
         <div className="command-row">
           <textarea
             value={text}
-            placeholder="e.g. Schedule an investor meeting next Tuesday at 2pm and draft a follow-up email…"
+            placeholder={t.placeholder}
             onChange={(e) => setText(e.target.value)}
             onKeyDown={(e) => {
               if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) run(text);
@@ -152,15 +150,15 @@ export default function App() {
               onClick={toggleVoice}
               title="Voice input"
             >
-              {listening ? "● Rec" : "🎤"}
+              {listening ? t.rec : t.mic}
             </button>
             <button className="run" disabled={running || !text.trim()} onClick={() => run(text)}>
-              {running ? "Thinking…" : "Run ⌘↵"}
+              {running ? t.thinking : t.run}
             </button>
           </div>
         </div>
         <div className="examples">
-          {EXAMPLES.map((ex, i) => (
+          {t.examples.map((ex, i) => (
             <button key={i} className="chip" onClick={() => setText(ex)} disabled={running}>
               {ex.length > 48 ? ex.slice(0, 48) + "…" : ex}
             </button>
@@ -171,7 +169,7 @@ export default function App() {
       {(running || stream || plan || error) && (
         <section className="activity">
           <div className="activity-head">
-            <span className="dot" data-on={running} /> Agent activity
+            <span className="dot" data-on={running} /> {t.activity}
           </div>
           {error && <div className="err">⚠ {error}</div>}
           {stream && <pre className="stream">{stream}</pre>}
@@ -181,46 +179,45 @@ export default function App() {
               <ul className="plan-actions">
                 {plan.actions.map((a, i) => (
                   <li key={i}>
-                    <span className="atype">{a.type.replace("_", " ")}</span>
+                    <span className="atype">{actionLabel[lang][a.type] ?? a.type}</span>
                     <span className="adesc">
                       {a.type === "create_task" && (a.data as any).title}
                       {a.type === "schedule_event" &&
                         `${(a.data as any).title} — ${(a.data as any).start}`}
                       {a.type === "draft_email" &&
-                        `${(a.data as any).subject} → ${(a.data as any).to ?? "(no recipient)"}`}
+                        `${(a.data as any).subject} → ${(a.data as any).to ?? t.noRecipient}`}
                     </span>
                   </li>
                 ))}
               </ul>
               <div className="plan-buttons">
                 <button className="approve" onClick={onApprove}>
-                  ✓ Approve &amp; apply
+                  {t.approve}
                 </button>
                 <button className="rejectbtn" onClick={onReject}>
-                  ✕ Discard
+                  {t.discard}
                 </button>
               </div>
-              <div className="guard">🔒 Nothing is saved until you approve.</div>
+              <div className="guard">{t.guard}</div>
             </div>
           )}
         </section>
       )}
 
       <section className="panels">
-        <Panel title="Tasks" count={tasks.length}>
-          {tasks.map((t) => (
-            <div className="card" key={t.id}>
+        <Panel title={t.tasks} count={tasks.length} empty={t.empty}>
+          {tasks.map((tk) => (
+            <div className="card" key={tk.id}>
               <div className="card-top">
-                <span className={priorityClass(t.priority)}>{t.priority}</span>
-                {t.due && <span className="due">{t.due}</span>}
+                <span className={priorityClass(tk.priority)}>{tk.priority}</span>
+                {tk.due && <span className="due">{tk.due}</span>}
               </div>
-              <div className="card-title">{t.title}</div>
+              <div className="card-title">{tk.title}</div>
             </div>
           ))}
-          {!tasks.length && <Empty />}
         </Panel>
 
-        <Panel title="Calendar" count={events.length}>
+        <Panel title={t.calendar} count={events.length} empty={t.empty}>
           {events.map((e) => (
             <div className="card" key={e.id}>
               <div className="card-time">{e.start}</div>
@@ -228,26 +225,22 @@ export default function App() {
               {e.notes && <div className="card-notes">{e.notes}</div>}
             </div>
           ))}
-          {!events.length && <Empty />}
         </Panel>
 
-        <Panel title="Email Drafts" count={drafts.length}>
+        <Panel title={t.drafts} count={drafts.length} empty={t.empty}>
           {drafts.map((d) => (
             <div className="card" key={d.id}>
               <div className="card-top">
-                <span className="to">{d.to ?? "(no recipient)"}</span>
+                <span className="to">{d.to ?? t.noRecipient}</span>
               </div>
               <div className="card-title">{d.subject}</div>
               <div className="card-body">{d.body}</div>
             </div>
           ))}
-          {!drafts.length && <Empty />}
         </Panel>
       </section>
 
-      <footer className="footer">
-        Powered by GitHub Copilot SDK · Azure OpenAI (gpt-4.1-mini) · deployed on Azure Container Apps
-      </footer>
+      <footer className="footer">{t.footer}</footer>
     </div>
   );
 }
@@ -255,23 +248,25 @@ export default function App() {
 function Panel({
   title,
   count,
+  empty,
   children,
 }: {
   title: string;
   count: number;
+  empty: string;
   children: React.ReactNode;
 }) {
+  const arr = Array.isArray(children) ? children : [children];
+  const hasItems = arr.some((c) => c);
   return (
     <div className="panel">
       <div className="panel-head">
         <h2>{title}</h2>
         <span className="badge">{count}</span>
       </div>
-      <div className="panel-body">{children}</div>
+      <div className="panel-body">
+        {hasItems ? children : <div className="empty">{empty}</div>}
+      </div>
     </div>
   );
-}
-
-function Empty() {
-  return <div className="empty">Nothing yet</div>;
 }
