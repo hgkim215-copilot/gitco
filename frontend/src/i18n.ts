@@ -103,9 +103,9 @@ export const STRINGS: Record<Lang, Strings> = {
     },
   },
   en: {
-    title: "Gitko",
+    title: "Gitco",
     subtitle:
-      "Gitko is an AI secretary for solo founders. Tell it a goal — it plans tasks, events & email drafts on Azure OpenAI. You approve before anything is saved.",
+      "Gitco is an AI secretary for solo founders. Tell it a goal — it plans tasks, events & email drafts on Azure OpenAI. You approve before anything is saved.",
     placeholder:
       "e.g. Schedule an investor meeting next Tuesday at 2pm and draft a follow-up email…",
     run: "Run ⌘↵",
