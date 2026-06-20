@@ -290,7 +290,10 @@ export default function App() {
 
   return (
     <div className="app">
-      <header className="header">
+      <a href="#main-content" className="skip-link">
+        {lang === "ko" ? "본문으로 이동" : "Skip to main content"}
+      </a>
+      <header className="header" role="banner">
         <div className="brand">
           <span className="logo">◆</span>
           <div>
@@ -305,13 +308,13 @@ export default function App() {
               🧠 {memCount} {t.memBadge}
             </span>
           )}
-          <button className="lang" onClick={() => setShowProfile(true)}>
+          <button className="lang" onClick={() => setShowProfile(true)} aria-label={t.a11y.openProfile}>
             {t.profileButton}
           </button>
-          <button className="lang" onClick={() => setShowGuide(true)}>
+          <button className="lang" onClick={() => setShowGuide(true)} aria-label={t.a11y.openGuide}>
             ❔ {t.guideButton}
           </button>
-          <button className="lang" onClick={() => setLang(lang === "ko" ? "en" : "ko")}>
+          <button className="lang" onClick={() => setLang(lang === "ko" ? "en" : "ko")} aria-label={t.a11y.switchLang}>
             {t.langButton}
           </button>
         </div>
@@ -332,7 +335,7 @@ export default function App() {
         />
       )}
 
-      <section className="command">
+      <section className="command" id="main-content" aria-label={lang === "ko" ? "명령 입력" : "Command input"}>
         <div className="command-row">
           <textarea
             value={text}
@@ -342,16 +345,24 @@ export default function App() {
               if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) run(text);
             }}
             rows={2}
+            aria-label={t.placeholder}
           />
           <div className="command-actions">
             <button
               className={listening ? "mic mic-on" : "mic"}
               onClick={toggleVoice}
-              title="Voice input"
+              aria-label={listening ? t.a11y.micStop : t.a11y.micStart}
+              aria-pressed={listening}
             >
               {listening ? t.rec : t.mic}
             </button>
-            <button className="run" disabled={running || !text.trim()} onClick={() => run(text)}>
+            <button
+              className="run"
+              disabled={running || !text.trim()}
+              onClick={() => run(text)}
+              aria-label={t.a11y.runCommand}
+              aria-busy={running}
+            >
               {running ? t.thinking : t.run}
             </button>
           </div>
@@ -393,7 +404,7 @@ export default function App() {
       </section>
 
       {(running || plan || error || recalled.length > 0) && (
-        <section className="activity">
+        <section className="activity" aria-live="polite" aria-label={t.activity}>
           <div className="activity-head">
             <span className="dot" data-on={running} /> {t.activity}
           </div>
@@ -428,6 +439,8 @@ export default function App() {
                 <span>{plan.summary}</span>
                 <button
                   className="speak-btn"
+                  aria-label={speakingId === "plan" ? t.a11y.stopSpeech : t.a11y.speakItem}
+                  aria-pressed={speakingId === "plan"}
                   onClick={() => speak("plan", plan.summary)}
                 >
                   {speakingId === "plan" ? t.stopSpeak : t.speak}
@@ -584,17 +597,19 @@ export default function App() {
                   {tk.due && <span className="due">{tk.due}</span>}
                   <button
                     className="icon-btn"
-                    title={t.approve}
-                    onClick={() => onToggleTask(tk.id)}
+                   aria-label={tk.status === "done" ? t.a11y.undoComplete : t.a11y.toggleComplete}
+                   title={tk.status === "done" ? t.a11y.undoComplete : t.a11y.toggleComplete}
+                   onClick={() => onToggleTask(tk.id)}
                   >
-                    {tk.status === "done" ? "↺" : "✓"}
+                   {tk.status === "done" ? "↺" : "✓"}
                   </button>
                   <button
-                    className="icon-btn icon-danger"
-                    title={t.del}
-                    onClick={() => onDeleteTask(tk.id)}
+                   className="icon-btn icon-danger"
+                   aria-label={t.a11y.deleteItem}
+                   title={t.a11y.deleteItem}
+                   onClick={() => onDeleteTask(tk.id)}
                   >
-                    ✕
+                   ✕
                   </button>
                 </div>
               </div>
@@ -610,7 +625,8 @@ export default function App() {
                 <span className="card-time">{e.start}</span>
                 <button
                   className="icon-btn icon-danger"
-                  title={t.del}
+                  aria-label={t.a11y.deleteEvent}
+                  title={t.a11y.deleteEvent}
                   onClick={() => onDeleteEvent(e.id)}
                 >
                   ✕
@@ -630,14 +646,16 @@ export default function App() {
                 <div className="card-actions">
                   <button
                     className="icon-btn"
-                    title={t.copy}
+                    aria-label={copiedId === d.id ? t.copied : t.a11y.copyItem}
+                    title={t.a11y.copyItem}
                     onClick={() => onCopyDraft(d.id, d.body, d.subject)}
                   >
                     {copiedId === d.id ? "✓" : "⧉"}
                   </button>
                   <button
                     className="icon-btn icon-danger"
-                    title={t.del}
+                    aria-label={t.a11y.deleteDraft}
+                    title={t.a11y.deleteDraft}
                     onClick={() => onDeleteDraft(d.id)}
                   >
                     ✕
@@ -681,7 +699,8 @@ export default function App() {
                 <div className="card-actions">
                   <button
                     className="icon-btn"
-                    title={t.speak}
+                    aria-label={speakingId === `u${u.id}` ? t.a11y.stopSpeech : t.a11y.speakItem}
+                    title={speakingId === `u${u.id}` ? t.a11y.stopSpeech : t.a11y.speakItem}
                     onClick={() =>
                       speak(
                         `u${u.id}`,
@@ -693,14 +712,16 @@ export default function App() {
                   </button>
                   <button
                     className="icon-btn"
-                    title={t.copy}
+                    aria-label={copiedId === -u.id ? t.copied : t.a11y.copyItem}
+                    title={t.a11y.copyItem}
                     onClick={() => onCopyUpdate(u)}
                   >
                     {copiedId === -u.id ? "✓" : "⧉"}
                   </button>
                   <button
                     className="icon-btn icon-danger"
-                    title={t.del}
+                    aria-label={t.a11y.deleteUpdate}
+                    title={t.a11y.deleteUpdate}
                     onClick={() => onDeleteUpdate(u.id)}
                   >
                     ✕
@@ -788,7 +809,8 @@ export default function App() {
                 <div className="card-actions">
                   <button
                     className="icon-btn"
-                    title={t.speak}
+                    aria-label={speakingId === `b${b.id}` ? t.a11y.stopSpeech : t.a11y.speakItem}
+                    title={speakingId === `b${b.id}` ? t.a11y.stopSpeech : t.a11y.speakItem}
                     onClick={() =>
                       speak(
                         `b${b.id}`,
@@ -802,7 +824,8 @@ export default function App() {
                   </button>
                   <button
                     className="icon-btn icon-danger"
-                    title={t.del}
+                    aria-label={t.a11y.deleteBriefing}
+                    title={t.a11y.deleteBriefing}
                     onClick={() => onDeleteBriefing(b.id)}
                   >
                     ✕
@@ -833,7 +856,9 @@ export default function App() {
                       {p.url && (
                         <button
                           className="grant-verify"
+                          aria-label={t.a11y.verifySource}
                           disabled={verifying === `${b.id}-${i}`}
+                          aria-busy={verifying === `${b.id}-${i}`}
                           onClick={() => onVerify(`${b.id}-${i}`, p.url, p.title)}
                         >
                           {verifying === `${b.id}-${i}` ? t.anVerifying : t.anVerify}
@@ -986,11 +1011,21 @@ function ProfileModal({
   }
 
   return (
-    <div className="modal-overlay" onClick={onClose}>
-      <div className="modal modal-sm" onClick={(e) => e.stopPropagation()}>
+    <div
+      className="modal-overlay"
+      onClick={onClose}
+      onKeyDown={(e) => e.key === "Escape" && onClose()}
+    >
+      <div
+        className="modal modal-sm"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="profile-modal-title"
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className="modal-head">
-          <h2>{t.profileTitle}</h2>
-          <button className="modal-close" onClick={onClose}>
+          <h2 id="profile-modal-title">{t.profileTitle}</h2>
+          <button className="modal-close" aria-label={t.a11y.closeModal} onClick={onClose}>
             ✕
           </button>
         </div>
@@ -1076,11 +1111,21 @@ function GuideModal({
   onPick: (cmd: string) => void;
 }) {
   return (
-    <div className="modal-overlay" onClick={onClose}>
-      <div className="modal" onClick={(e) => e.stopPropagation()}>
+    <div
+      className="modal-overlay"
+      onClick={onClose}
+      onKeyDown={(e) => e.key === "Escape" && onClose()}
+    >
+      <div
+        className="modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="guide-modal-title"
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className="modal-head">
-          <h2>{t.guide.title}</h2>
-          <button className="modal-close" onClick={onClose}>
+          <h2 id="guide-modal-title">{t.guide.title}</h2>
+          <button className="modal-close" aria-label={t.a11y.closeModal} onClick={onClose}>
             ✕
           </button>
         </div>

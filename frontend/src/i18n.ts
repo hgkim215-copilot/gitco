@@ -85,6 +85,26 @@ export type Strings = {
   langButton: string;
   guideButton: string;
   briefingCommand: string;
+  a11y: {
+    closeModal: string;
+    toggleComplete: string;
+    undoComplete: string;
+    deleteItem: string;
+    copyItem: string;
+    speakItem: string;
+    stopSpeech: string;
+    micStart: string;
+    micStop: string;
+    runCommand: string;
+    openProfile: string;
+    openGuide: string;
+    switchLang: string;
+    verifySource: string;
+    deleteUpdate: string;
+    deleteBriefing: string;
+    deleteEvent: string;
+    deleteDraft: string;
+  };
   guide: {
     title: string;
     intro: string;
@@ -238,6 +258,26 @@ export const STRINGS: Record<Lang, Strings> = {
     guideButton: "사용 가이드",
     briefingCommand:
       "지금 등록된 할 일과 일정을 검토해서, 오늘 집중해야 할 우선순위를 정리하고 빠진 준비가 있으면 할 일로 추가해줘.",
+    a11y: {
+      closeModal: "모달 닫기",
+      toggleComplete: "완료로 표시",
+      undoComplete: "완료 취소",
+      deleteItem: "삭제",
+      copyItem: "클립보드에 복사",
+      speakItem: "읽어주기",
+      stopSpeech: "읽기 중지",
+      micStart: "음성 입력 시작",
+      micStop: "음성 입력 중지",
+      runCommand: "명령 실행",
+      openProfile: "프로필 설정 열기",
+      openGuide: "사용 가이드 열기",
+      switchLang: "영어로 전환",
+      verifySource: "원문 링크 확인",
+      deleteUpdate: "투자자 업데이트 삭제",
+      deleteBriefing: "공고 브리핑 삭제",
+      deleteEvent: "일정 삭제",
+      deleteDraft: "이메일 초안 삭제",
+    },
     guide: {
       title: "이럴 때 써보세요",
       intro: "이 앱은 혼자 모든 걸 처리하는 1인 창업가를 위해 만들어졌습니다.",
@@ -404,6 +444,26 @@ export const STRINGS: Record<Lang, Strings> = {
     guideButton: "How to use",
     briefingCommand:
       "Review my current tasks and events, lay out today's top priorities, and add any missing prep as tasks.",
+    a11y: {
+      closeModal: "Close modal",
+      toggleComplete: "Mark as done",
+      undoComplete: "Undo completion",
+      deleteItem: "Delete",
+      copyItem: "Copy to clipboard",
+      speakItem: "Read aloud",
+      stopSpeech: "Stop reading",
+      micStart: "Start voice input",
+      micStop: "Stop voice input",
+      runCommand: "Run command",
+      openProfile: "Open profile settings",
+      openGuide: "Open usage guide",
+      switchLang: "Switch to Korean",
+      verifySource: "Verify source link",
+      deleteUpdate: "Delete investor update",
+      deleteBriefing: "Delete grant briefing",
+      deleteEvent: "Delete event",
+      deleteDraft: "Delete email draft",
+    },
     guide: {
       title: "When to use this",
       intro: "Built for the solo founder who does everything alone.",
