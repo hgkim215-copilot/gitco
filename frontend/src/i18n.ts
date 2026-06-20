@@ -1,5 +1,7 @@
 export type Lang = "ko" | "en";
 
+export type Scenario = { label: string; command: string };
+
 export type Strings = {
   title: string;
   subtitle: string;
@@ -8,7 +10,7 @@ export type Strings = {
   thinking: string;
   mic: string;
   rec: string;
-  examples: string[];
+  scenarios: Scenario[];
   activity: string;
   approve: string;
   discard: string;
@@ -21,6 +23,19 @@ export type Strings = {
   voiceUnsupported: string;
   noRecipient: string;
   langButton: string;
+  guideButton: string;
+  guide: {
+    title: string;
+    intro: string;
+    personaName: string;
+    personaRole: string;
+    personaPain: string;
+    whenTitle: string;
+    whyTitle: string;
+    why: string[];
+    tryHint: string;
+    close: string;
+  };
 };
 
 export const STRINGS: Record<Lang, Strings> = {
@@ -33,10 +48,27 @@ export const STRINGS: Record<Lang, Strings> = {
     thinking: "생각 중…",
     mic: "🎤",
     rec: "● 녹음",
-    examples: [
-      "다음 주 화요일 오후 2시에 투자자 미팅을 잡고, 피치덱 준비 할 일을 높은 우선순위로 추가해줘.",
-      "데모 관련 후속 이메일을 Jane에게 보내는 초안을 쓰고, 내일 보낼 할 일을 추가해줘.",
-      "제품 출시를 계획해줘: 할 일 3개를 추가하고 금요일 오전에 킥오프 콜을 잡아줘.",
+    scenarios: [
+      {
+        label: "🌅 하루 시작 정리",
+        command:
+          "오늘 인스타 릴스 1개 만들고, 신제품 샘플 발주하고, 어제 문의 온 고객에게 답장하는 할 일을 추가해줘.",
+      },
+      {
+        label: "🤝 투자자 미팅 + 후속 메일",
+        command:
+          "다음 주 화요일 오후 2시에 투자자 미팅을 잡고, 끝나고 보낼 후속 이메일 초안도 써줘.",
+      },
+      {
+        label: "💬 고객 클레임 대응",
+        command:
+          "배송 지연으로 화난 고객에게 사과하고 보상 쿠폰을 주는 메일 초안을 쓰고, 내일 재고를 확인하는 할 일을 추가해줘.",
+      },
+      {
+        label: "🚀 신제품 출시 준비",
+        command:
+          "다음 달 신제품 출시를 준비해줘: 촬영, 상세페이지, 사전알림 메일 할 일을 추가하고 킥오프 회의는 금요일 오전에 잡아줘.",
+      },
     ],
     activity: "에이전트 활동",
     approve: "✓ 승인하고 적용",
@@ -46,11 +78,29 @@ export const STRINGS: Record<Lang, Strings> = {
     calendar: "캘린더",
     drafts: "이메일 초안",
     empty: "아직 없음",
-    footer:
-      "GitHub Copilot SDK · Azure OpenAI(gpt-4.1-mini) · Azure Container Apps 배포",
+    footer: "GitHub Copilot SDK · Azure OpenAI(gpt-4.1-mini) · Azure Container Apps 배포",
     voiceUnsupported: "이 브라우저에서는 음성 입력을 지원하지 않습니다.",
     noRecipient: "(받는 사람 없음)",
     langButton: "EN",
+    guideButton: "사용 가이드",
+    guide: {
+      title: "이럴 때 써보세요",
+      intro: "이 앱은 혼자 모든 걸 처리하는 1인 창업가를 위해 만들어졌습니다.",
+      personaName: "김지원 · 32세 · 1인 D2C 창업가",
+      personaRole:
+        "친환경 홈카페 브랜드를 혼자 운영합니다. 마케팅, 고객응대, 발주, 투자유치까지 전부 직접 합니다.",
+      personaPain:
+        "“머릿속엔 할 일이 가득한데, 옮겨 적고 메일 쓰고 일정 잡는 잡무에 하루가 녹아요.” 아이디어는 휘발되고 후속 조치를 놓칩니다.",
+      whenTitle: "추천 시나리오 (눌러서 바로 실행)",
+      whyTitle: "왜 김지원에게 좋은가",
+      why: [
+        "승인 게이트 — 메일·일정은 항상 검토 후 반영되어 실수 걱정 없이 위임",
+        "맥락 유지 — 현재 할 일·일정을 AI가 참고해 계획, 매번 설명할 필요 없음",
+        "음성 입력 — 손이 바쁠 때 말로 던지면 끝",
+      ],
+      tryHint: "시나리오를 누르면 입력창에 채워집니다. 실행만 누르세요.",
+      close: "닫기",
+    },
   },
   en: {
     title: "AI Chief of Staff",
@@ -62,10 +112,27 @@ export const STRINGS: Record<Lang, Strings> = {
     thinking: "Thinking…",
     mic: "🎤",
     rec: "● Rec",
-    examples: [
-      "Schedule an investor meeting next Tuesday at 2pm and create a high-priority task to prepare the pitch deck.",
-      "Draft a follow-up email to Jane about the demo and add a task to send it tomorrow.",
-      "Plan my product launch: add 3 tasks and schedule a kickoff call Friday morning.",
+    scenarios: [
+      {
+        label: "🌅 Start-of-day brain dump",
+        command:
+          "Add tasks to make one Instagram reel today, order new product samples, and reply to the customers who messaged yesterday.",
+      },
+      {
+        label: "🤝 Investor meeting + follow-up",
+        command:
+          "Schedule an investor meeting next Tuesday at 2pm and draft the follow-up email to send afterwards.",
+      },
+      {
+        label: "💬 Handle a customer complaint",
+        command:
+          "Draft an apology email offering a coupon to a customer upset about a shipping delay, and add a task to check stock tomorrow.",
+      },
+      {
+        label: "🚀 Product launch prep",
+        command:
+          "Plan next month's product launch: add tasks for the photoshoot, product page, and pre-launch email, and schedule a kickoff Friday morning.",
+      },
     ],
     activity: "Agent activity",
     approve: "✓ Approve & apply",
@@ -80,6 +147,25 @@ export const STRINGS: Record<Lang, Strings> = {
     voiceUnsupported: "Voice input is not supported in this browser.",
     noRecipient: "(no recipient)",
     langButton: "한국어",
+    guideButton: "How to use",
+    guide: {
+      title: "When to use this",
+      intro: "Built for the solo founder who does everything alone.",
+      personaName: "Jiwon Kim · 32 · solo D2C founder",
+      personaRole:
+        "Runs an eco-friendly home-cafe brand single-handedly — marketing, support, purchasing, and fundraising.",
+      personaPain:
+        "“My head is full of to-dos, but the busywork of writing them down, drafting emails, and scheduling eats my whole day.” Ideas evaporate and follow-ups slip.",
+      whenTitle: "Suggested scenarios (tap to run)",
+      whyTitle: "Why it works for Jiwon",
+      why: [
+        "Approval gate — emails and events apply only after review, so delegation feels safe",
+        "Context-aware — the agent reads current tasks/events, no need to re-explain",
+        "Voice input — just say it when your hands are busy",
+      ],
+      tryHint: "Tap a scenario to fill the command box, then hit Run.",
+      close: "Close",
+    },
   },
 };
 

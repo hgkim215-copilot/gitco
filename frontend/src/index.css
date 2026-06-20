@@ -106,6 +106,158 @@ body {
   color: var(--accent);
   transform: translateY(-1px);
 }
+.header-actions {
+  display: flex;
+  gap: 8px;
+  flex: none;
+}
+
+/* Guide modal */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(28, 36, 64, 0.38);
+  backdrop-filter: blur(3px);
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  z-index: 50;
+  animation: fade-up 0.18s ease both;
+}
+.modal {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  box-shadow: var(--shadow-lg);
+  width: min(620px, 100%);
+  max-height: 88vh;
+  overflow: auto;
+  padding: 22px;
+}
+.modal-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.modal-head h2 {
+  margin: 0;
+  font-size: 20px;
+  letter-spacing: -0.01em;
+}
+.modal-close {
+  border: none;
+  background: var(--surface-3);
+  color: var(--text-soft);
+  width: 32px;
+  height: 32px;
+  border-radius: 9px;
+  cursor: pointer;
+  font-size: 14px;
+}
+.modal-close:hover {
+  background: #e7ebf6;
+}
+.modal-intro {
+  color: var(--muted);
+  font-size: 14px;
+  margin: 6px 0 16px;
+}
+.persona {
+  display: flex;
+  gap: 14px;
+  background: linear-gradient(180deg, #f7f9ff, #fff);
+  border: 1px solid #d9e1ff;
+  border-radius: 14px;
+  padding: 14px;
+}
+.persona-avatar {
+  font-size: 34px;
+  width: 56px;
+  height: 56px;
+  display: grid;
+  place-items: center;
+  background: var(--accent-soft);
+  border-radius: 14px;
+  flex: none;
+}
+.persona-name {
+  font-weight: 700;
+  font-size: 15px;
+}
+.persona-role {
+  color: var(--text-soft);
+  font-size: 13px;
+  margin-top: 4px;
+  line-height: 1.5;
+}
+.persona-pain {
+  color: var(--muted);
+  font-size: 13px;
+  margin-top: 8px;
+  line-height: 1.55;
+  font-style: italic;
+}
+.guide-section-title {
+  margin: 18px 0 10px;
+  font-weight: 700;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+}
+.guide-scenarios {
+  display: grid;
+  gap: 8px;
+}
+.scenario-card {
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 12px 14px;
+  cursor: pointer;
+  transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.scenario-card:hover {
+  transform: translateY(-1px);
+  border-color: var(--accent);
+  box-shadow: var(--shadow-sm);
+}
+.scenario-label {
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--text);
+}
+.scenario-cmd {
+  font-size: 12.5px;
+  color: var(--muted);
+  line-height: 1.5;
+}
+.guide-hint {
+  margin-top: 10px;
+  font-size: 12.5px;
+  color: var(--accent);
+}
+.guide-why {
+  margin: 0;
+  padding-left: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+.guide-why li {
+  color: var(--text-soft);
+  font-size: 13.5px;
+  line-height: 1.5;
+}
+.modal-foot {
+  margin-top: 20px;
+  display: flex;
+  justify-content: flex-end;
+}
 
 /* Command bar */
 .command {

@@ -28,6 +28,7 @@ export default function App() {
   const [runId, setRunId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [listening, setListening] = useState(false);
+  const [showGuide, setShowGuide] = useState(false);
 
   const [tasks, setTasks] = useState<Task[]>([]);
   const [events, setEvents] = useState<EventRow[]>([]);
@@ -128,10 +129,26 @@ export default function App() {
             <p>{t.subtitle}</p>
           </div>
         </div>
-        <button className="lang" onClick={() => setLang(lang === "ko" ? "en" : "ko")}>
-          {t.langButton}
-        </button>
+        <div className="header-actions">
+          <button className="lang" onClick={() => setShowGuide(true)}>
+            ❔ {t.guideButton}
+          </button>
+          <button className="lang" onClick={() => setLang(lang === "ko" ? "en" : "ko")}>
+            {t.langButton}
+          </button>
+        </div>
       </header>
+
+      {showGuide && (
+        <GuideModal
+          t={t}
+          onClose={() => setShowGuide(false)}
+          onPick={(cmd) => {
+            setText(cmd);
+            setShowGuide(false);
+          }}
+        />
+      )}
 
       <section className="command">
         <div className="command-row">
@@ -158,9 +175,15 @@ export default function App() {
           </div>
         </div>
         <div className="examples">
-          {t.examples.map((ex, i) => (
-            <button key={i} className="chip" onClick={() => setText(ex)} disabled={running}>
-              {ex.length > 48 ? ex.slice(0, 48) + "…" : ex}
+          {t.scenarios.map((s, i) => (
+            <button
+              key={i}
+              className="chip"
+              onClick={() => setText(s.command)}
+              disabled={running}
+              title={s.command}
+            >
+              {s.label}
             </button>
           ))}
         </div>
@@ -266,6 +289,63 @@ function Panel({
       </div>
       <div className="panel-body">
         {hasItems ? children : <div className="empty">{empty}</div>}
+      </div>
+    </div>
+  );
+}
+
+function GuideModal({
+  t,
+  onClose,
+  onPick,
+}: {
+  t: (typeof STRINGS)[Lang];
+  onClose: () => void;
+  onPick: (cmd: string) => void;
+}) {
+  return (
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="modal" onClick={(e) => e.stopPropagation()}>
+        <div className="modal-head">
+          <h2>{t.guide.title}</h2>
+          <button className="modal-close" onClick={onClose}>
+            ✕
+          </button>
+        </div>
+        <p className="modal-intro">{t.guide.intro}</p>
+
+        <div className="persona">
+          <div className="persona-avatar">👩‍💼</div>
+          <div>
+            <div className="persona-name">{t.guide.personaName}</div>
+            <div className="persona-role">{t.guide.personaRole}</div>
+            <div className="persona-pain">{t.guide.personaPain}</div>
+          </div>
+        </div>
+
+        <div className="guide-section-title">{t.guide.whenTitle}</div>
+        <div className="guide-scenarios">
+          {t.scenarios.map((s, i) => (
+            <button key={i} className="scenario-card" onClick={() => onPick(s.command)}>
+              <span className="scenario-label">{s.label}</span>
+              <span className="scenario-cmd">{s.command}</span>
+            </button>
+          ))}
+        </div>
+        <div className="guide-hint">{t.guide.tryHint}</div>
+
+        <div className="guide-section-title">{t.guide.whyTitle}</div>
+        <ul className="guide-why">
+          {t.guide.why.map((w, i) => (
+            <li key={i}>{w}</li>
+          ))}
+        </ul>
+
+        <div className="modal-foot">
+          <button className="approve" onClick={onClose}>
+            {t.guide.close}
+          </button>
+        </div>
       </div>
     </div>
   );
