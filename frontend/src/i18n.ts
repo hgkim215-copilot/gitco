@@ -25,6 +25,11 @@ export type Strings = {
   anFit: string;
   anAddTask: string;
   anLink: string;
+  anVerify: string;
+  anVerifying: string;
+  anVerifyOk: string;
+  anVerifyFail: string;
+  anVerifyTool: string;
   profileButton: string;
   profileTitle: string;
   profileIndustry: string;
@@ -146,6 +151,11 @@ export const STRINGS: Record<Lang, Strings> = {
     anFit: "적합 이유",
     anAddTask: "📌 마감 할일 추가",
     anLink: "원문",
+    anVerify: "🔎 원문 확인",
+    anVerifying: "원문 확인 중…",
+    anVerifyOk: "✅ 원문 확인됨",
+    anVerifyFail: "⚠️ 확인 불가",
+    anVerifyTool: "web_fetch로 실제 페이지를 읽었습니다",
     profileButton: "⚙️ 프로필",
     profileTitle: "창업가 프로필",
     profileIndustry: "업종",
@@ -306,6 +316,11 @@ export const STRINGS: Record<Lang, Strings> = {
     anFit: "Why it fits",
     anAddTask: "📌 Add deadline task",
     anLink: "Source",
+    anVerify: "🔎 Verify source",
+    anVerifying: "Checking source…",
+    anVerifyOk: "✅ Source verified",
+    anVerifyFail: "⚠️ Couldn't verify",
+    anVerifyTool: "Read the live page via web_fetch",
     profileButton: "⚙️ Profile",
     profileTitle: "Founder profile",
     profileIndustry: "Industry",

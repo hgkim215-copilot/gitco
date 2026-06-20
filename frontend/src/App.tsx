@@ -23,6 +23,8 @@ import {
   createTask,
   getInfo,
   type Info,
+  verifyAnnouncement,
+  type VerifyResult,
 } from "./api";
 
 function priorityClass(p: string) {
@@ -59,6 +61,20 @@ export default function App() {
   const [info, setInfo] = useState<Info | null>(null);
   const [speakingId, setSpeakingId] = useState<string | null>(null);
   const [refineKey, setRefineKey] = useState<string | null>(null);
+  const [verifying, setVerifying] = useState<string | null>(null);
+  const [verifyResults, setVerifyResults] = useState<Record<string, VerifyResult>>({});
+
+  async function onVerify(key: string, url: string, title: string) {
+    setVerifying(key);
+    try {
+      const r = await verifyAnnouncement(url, title, lang);
+      setVerifyResults((prev) => ({ ...prev, [key]: r }));
+    } catch {
+      setVerifyResults((prev) => ({ ...prev, [key]: { ok: false, toolUsed: false } }));
+    } finally {
+      setVerifying(null);
+    }
+  }
 
   function refineDraft(d: Draft, opt: string) {
     setRefineKey(null);
@@ -815,11 +831,44 @@ export default function App() {
                         {t.anAddTask}
                       </button>
                       {p.url && (
+                        <button
+                          className="grant-verify"
+                          disabled={verifying === `${b.id}-${i}`}
+                          onClick={() => onVerify(`${b.id}-${i}`, p.url, p.title)}
+                        >
+                          {verifying === `${b.id}-${i}` ? t.anVerifying : t.anVerify}
+                        </button>
+                      )}
+                      {p.url && (
                         <a className="grant-link" href={p.url} target="_blank" rel="noreferrer">
                           {t.anLink} ↗
                         </a>
                       )}
                     </div>
+                    {verifyResults[`${b.id}-${i}`] && (
+                      <div
+                        className={
+                          verifyResults[`${b.id}-${i}`].ok ? "verify-box verify-ok" : "verify-box verify-fail"
+                        }
+                      >
+                        <div className="verify-head">
+                          {verifyResults[`${b.id}-${i}`].ok ? t.anVerifyOk : t.anVerifyFail}
+                          {verifyResults[`${b.id}-${i}`].toolUsed && (
+                            <span className="verify-tool">🌐 {t.anVerifyTool}</span>
+                          )}
+                        </div>
+                        <div className="verify-body">
+                          {verifyResults[`${b.id}-${i}`].ok
+                            ? verifyResults[`${b.id}-${i}`].summary
+                            : verifyResults[`${b.id}-${i}`].note}
+                        </div>
+                        {verifyResults[`${b.id}-${i}`].ok && verifyResults[`${b.id}-${i}`].deadline && (
+                          <div className="verify-deadline">
+                            {t.anDeadline}: {verifyResults[`${b.id}-${i}`].deadline}
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>

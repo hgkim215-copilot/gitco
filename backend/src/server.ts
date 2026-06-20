@@ -11,6 +11,7 @@ import { applyPlan } from "./actions.js";
 import { embed } from "./embeddings.js";
 import { addMemory, searchMemories, countMemories } from "./memory.js";
 import { getAnnouncements } from "./announcements.js";
+import { verifyAnnouncement } from "./verify.js";
 
 type Run = { buffer: AgentEvent[]; emit: ((e: AgentEvent) => void) | null; plan: Plan | null };
 
@@ -69,6 +70,11 @@ export function buildServer() {
     });
   });
   app.get("/api/announcements", async () => getAnnouncements());
+  app.post("/api/verify-announcement", async (req) => {
+    const b = (req.body ?? {}) as { url?: string; title?: string; lang?: string };
+    if (!b.url) return { ok: false, note: "url required", toolUsed: false };
+    return verifyAnnouncement({ config, url: b.url, title: b.title ?? "", lang: b.lang });
+  });
   app.post("/api/tasks", async (req) => {
     const b = (req.body ?? {}) as { title?: string; priority?: string; due?: string };
     if (!b.title) return { error: "title required" };

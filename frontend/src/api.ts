@@ -121,3 +121,20 @@ export async function createTask(title: string, due?: string, priority?: string)
     })
   ).json();
 }
+
+export type VerifyResult = {
+  ok: boolean;
+  deadline?: string;
+  summary?: string;
+  note?: string;
+  toolUsed: boolean;
+};
+export async function verifyAnnouncement(url: string, title: string, lang: string): Promise<VerifyResult> {
+  return (
+    await fetch("/api/verify-announcement", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ url, title, lang }),
+    })
+  ).json();
+}

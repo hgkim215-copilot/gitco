@@ -51,6 +51,8 @@
 - `📰 공고 확인` 버튼 → 공고 목록(하이브리드: 런타임 페치 시도 → 실패 시 실제 프로그램 시드)을
   프로필·기억과 함께 에이전트에 주입 → **적합한 공고만 선별 + 적합 이유** 작성
 - 그랜트 카드: **마감 D-day · 기관 · 적합 이유 · 원문 링크 · 📌 마감 할일 추가**(원클릭)
+- **🔎 원문 확인**: 깃코가 **Copilot SDK 내장 `web_fetch` 도구를 네이티브로 호출**해 공고 URL을 실제로 읽고
+  요약·마감을 보고(실제 도구 호출 시연). 실패 시 우아하게 "확인 불가 + 원문 링크" 안내
 - 프로필은 깃코의 모든 계획에 컨텍스트로 주입됨
 
 ### 7. 한국어/영어 (KO/EN 토글)
@@ -80,7 +82,7 @@
 ## 심사 기준 정렬
 | 기준 | 가중치 | 대응 |
 |---|--:|---|
-| Effective use of Copilot SDK | 25% | 에이전트 런타임 · 계획 · 스트리밍 · permission 승인 · 컨텍스트(기억) 주입 |
+| Effective use of Copilot SDK | 25% | 에이전트 런타임 · 계획 · 스트리밍 · permission 승인 · 컨텍스트(기억) 주입 · **내장 web_fetch 도구 네이티브 호출**(공고 원문 확인) |
 | Productivity impact & problem fit | 18% | 1인 창업가, 한 문장 → 다수 산출물; IR 업무 직접 자동화 |
 | Azure AI & cloud integration | 18% | 모델·임베딩 100% Azure OpenAI; Container Apps + ACR 배포 |
 | Functionality & technical execution | 16% | E2E 작동, 타입 안전 API, 테스트(12), 에러 처리 |
