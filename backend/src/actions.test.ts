@@ -1,8 +1,8 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { parsePlan } from "./agent.ts";
-import { applyPlan } from "./actions.ts";
-import { initDb, listTasks, listEvents, listDrafts } from "./db.ts";
+import { parsePlan } from "./agent.js";
+import { applyPlan } from "./actions.js";
+import { initDb, listTasks, listEvents, listDrafts } from "./db.js";
 
 test("parsePlan handles plain JSON", () => {
   const plan = parsePlan('{"summary":"do it","actions":[{"type":"create_task","data":{"title":"A"}}]}');

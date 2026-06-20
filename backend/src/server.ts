@@ -4,10 +4,10 @@ import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 import { existsSync } from "node:fs";
 import fastifyStatic from "@fastify/static";
-import { loadConfig } from "./config.ts";
-import { initDb, listTasks, listEvents, listDrafts } from "./db.ts";
-import { planFromCommand, type AgentEvent, type Plan } from "./agent.ts";
-import { applyPlan } from "./actions.ts";
+import { loadConfig } from "./config.js";
+import { initDb, listTasks, listEvents, listDrafts } from "./db.js";
+import { planFromCommand, type AgentEvent, type Plan } from "./agent.js";
+import { applyPlan } from "./actions.js";
 
 type Run = { buffer: AgentEvent[]; emit: ((e: AgentEvent) => void) | null; plan: Plan | null };
 

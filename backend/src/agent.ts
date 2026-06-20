@@ -1,5 +1,5 @@
 import { CopilotClient } from "@github/copilot-sdk";
-import type { AppConfig } from "./config.ts";
+import type { AppConfig } from "./config.js";
 
 export type Action =
   | { type: "create_task"; data: { title: string; priority?: string; due?: string } }

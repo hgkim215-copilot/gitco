@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { initDb, addTask, listTasks, addEvent, listEvents, addDraft, listDrafts } from "./db.ts";
+import { initDb, addTask, listTasks, addEvent, listEvents, addDraft, listDrafts } from "./db.js";
 
 test("addTask then listTasks returns it", () => {
   const db = initDb(":memory:");

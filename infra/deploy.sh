@@ -18,6 +18,13 @@ ENVNAME=lip-env
 ACR=ca74949c518eacr
 IMAGE="$ACR.azurecr.io/$APP:latest"
 
+# Pre-build locally (native) — avoids vite/tsc segfaults under amd64 emulation.
+export PATH="$HOME/.nvm/versions/node/v22.22.2/bin:$PATH"
+echo ">> Building frontend (native) ..."
+( cd frontend && npm run build )
+echo ">> Building backend (native) ..."
+( cd backend && npm run build )
+
 echo ">> Enabling ACR admin user ..."
 az acr update -n "$ACR" --admin-enabled true >/dev/null
 ACR_USER=$(az acr credential show -n "$ACR" --query username -o tsv)

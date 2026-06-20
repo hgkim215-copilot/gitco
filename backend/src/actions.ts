@@ -1,6 +1,6 @@
 import type Database from "better-sqlite3";
-import { addTask, addEvent, addDraft } from "./db.ts";
-import type { Plan, Action } from "./agent.ts";
+import { addTask, addEvent, addDraft } from "./db.js";
+import type { Plan, Action } from "./agent.js";
 
 export type AppliedResult = { type: Action["type"]; ok: boolean; id?: number; error?: string };
 
