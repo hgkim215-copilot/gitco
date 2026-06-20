@@ -53,6 +53,7 @@ export default function App() {
   const [briefings, setBriefings] = useState<Briefing[]>([]);
   const [profile, setProfile] = useState<Profile>({ industry: "", stage: "", interests: "" });
   const [showProfile, setShowProfile] = useState(false);
+  const [activeTab, setActiveTab] = useState<"workspace" | "updates" | "grants">("workspace");
 
   const recognitionRef = useRef<any>(null);
 
@@ -106,6 +107,7 @@ export default function App() {
 
   async function onApprove() {
     if (!runId) return;
+    const planActions = plan?.actions ?? [];
     const res = await approve(runId);
     if (res.tasks) {
       setTasks(res.tasks);
@@ -117,6 +119,10 @@ export default function App() {
       await refresh();
     }
     if (typeof (res as any).memoryCount === "number") setMemCount((res as any).memoryCount);
+    // Jump to the tab matching what was just produced.
+    if (planActions.some((a) => a.type === "announcement_briefing")) setActiveTab("grants");
+    else if (planActions.some((a) => a.type === "investor_update")) setActiveTab("updates");
+    else setActiveTab("workspace");
     setPlan(null);
     setStream("");
     setRunId(null);
@@ -404,6 +410,31 @@ export default function App() {
         </section>
       )}
 
+      <nav className="tabs">
+        <button
+          className={activeTab === "workspace" ? "tab tab-on" : "tab"}
+          onClick={() => setActiveTab("workspace")}
+        >
+          {t.tabWorkspace}
+          <span className="tab-count">{tasks.length + events.length + drafts.length}</span>
+        </button>
+        <button
+          className={activeTab === "updates" ? "tab tab-on" : "tab"}
+          onClick={() => setActiveTab("updates")}
+        >
+          {t.tabUpdates}
+          <span className="tab-count">{updates.length}</span>
+        </button>
+        <button
+          className={activeTab === "grants" ? "tab tab-on" : "tab"}
+          onClick={() => setActiveTab("grants")}
+        >
+          {t.tabGrants}
+          <span className="tab-count">{briefings.length}</span>
+        </button>
+      </nav>
+
+      {activeTab === "workspace" && (
       <section className="panels">
         <Panel title={t.tasks} count={tasks.length} empty={t.empty}>
           {tasks.map((tk) => (
@@ -480,8 +511,10 @@ export default function App() {
           ))}
         </Panel>
       </section>
+      )}
 
-      {updates.length > 0 && (
+      {activeTab === "updates" && (
+        updates.length > 0 ? (
         <section className="updates">
           <div className="updates-head">{t.iuPanel}</div>
           {updates.map((u) => (
@@ -542,9 +575,16 @@ export default function App() {
             </div>
           ))}
         </section>
+        ) : (
+          <section className="updates">
+            <div className="updates-head">{t.iuPanel}</div>
+            <div className="tab-empty">{t.empty}</div>
+          </section>
+        )
       )}
 
-      {briefings.length > 0 && (
+      {activeTab === "grants" && (
+        briefings.length > 0 ? (
         <section className="updates">
           <div className="updates-head">{t.anPanel}</div>
           {briefings.map((b) => (
@@ -592,6 +632,12 @@ export default function App() {
             </div>
           ))}
         </section>
+        ) : (
+          <section className="updates">
+            <div className="updates-head">{t.anPanel}</div>
+            <div className="tab-empty">{t.empty}</div>
+          </section>
+        )
       )}
 
       <footer className="footer">{t.footer}</footer>

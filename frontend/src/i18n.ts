@@ -38,6 +38,9 @@ export type Strings = {
   stageOptions: string[];
   interestOptions: string[];
   iuPanel: string;
+  tabWorkspace: string;
+  tabUpdates: string;
+  tabGrants: string;
   iuTldr: string;
   iuMetrics: string;
   iuHighlights: string;
@@ -167,6 +170,9 @@ export const STRINGS: Record<Lang, Strings> = {
       "인력 채용",
     ],
     iuPanel: "📈 투자자 업데이트",
+    tabWorkspace: "🗂 워크스페이스",
+    tabUpdates: "📈 투자자 업데이트",
+    tabGrants: "📰 공고",
     iuTldr: "요약",
     iuMetrics: "핵심 지표",
     iuHighlights: "하이라이트",
@@ -309,6 +315,9 @@ export const STRINGS: Record<Lang, Strings> = {
       "Hiring",
     ],
     iuPanel: "📈 Investor Updates",
+    tabWorkspace: "🗂 Workspace",
+    tabUpdates: "📈 Investor updates",
+    tabGrants: "📰 Grants",
     iuTldr: "TL;DR",
     iuMetrics: "Key metrics",
     iuHighlights: "Highlights",
