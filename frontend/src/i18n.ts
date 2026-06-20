@@ -64,6 +64,8 @@ export type Strings = {
   memBadge: string;
   copy: string;
   copied: string;
+  refineBtn: string;
+  refineOptions: string[];
   del: string;
   approve: string;
   discard: string;
@@ -209,6 +211,8 @@ export const STRINGS: Record<Lang, Strings> = {
     memBadge: "기억",
     copy: "복사",
     copied: "복사됨",
+    refineBtn: "✏️ 다듬기",
+    refineOptions: ["더 짧게", "더 정중하게", "더 캐주얼하게"],
     del: "삭제",
     approve: "✓ 승인하고 적용",
     discard: "✕ 취소",
@@ -367,6 +371,8 @@ export const STRINGS: Record<Lang, Strings> = {
     memBadge: "memories",
     copy: "Copy",
     copied: "Copied",
+    refineBtn: "✏️ Refine",
+    refineOptions: ["Shorter", "More formal", "More casual"],
     del: "Delete",
     approve: "✓ Approve & apply",
     discard: "✕ Discard",

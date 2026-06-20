@@ -58,6 +58,23 @@ export default function App() {
   const [activeTab, setActiveTab] = useState<"home" | "workspace" | "updates" | "grants">("home");
   const [info, setInfo] = useState<Info | null>(null);
   const [speakingId, setSpeakingId] = useState<string | null>(null);
+  const [refineKey, setRefineKey] = useState<string | null>(null);
+
+  function refineDraft(d: Draft, opt: string) {
+    setRefineKey(null);
+    setActiveTab("workspace");
+    run(
+      `다음 이메일 초안을 "${opt}" 느낌으로 다시 써줘. 같은 목적과 핵심 내용은 유지해줘.\n제목: ${d.subject}\n받는 사람: ${d.to ?? "(미정)"}\n본문:\n${d.body}`,
+    );
+  }
+  function refineUpdate(u: InvestorUpdate, opt: string) {
+    setRefineKey(null);
+    setActiveTab("updates");
+    const c = u.content;
+    run(
+      `다음 투자자 업데이트를 "${opt}" 느낌으로 다시 작성해줘. 같은 지표와 사실은 유지해줘.\n기간: ${u.period}\nTL;DR: ${c.tldr}\n지표: ${c.metrics.map((m) => `${m.label} ${m.value}`).join(", ")}\n하이라이트: ${c.highlights.join("; ")}\nAsk: ${c.asks.join("; ")}`,
+    );
+  }
 
   function speak(id: string, text: string) {
     const synth = (window as any).speechSynthesis;
@@ -613,6 +630,24 @@ export default function App() {
               </div>
               <div className="card-title">{d.subject}</div>
               <div className="card-body">{d.body}</div>
+              <div className="refine">
+                <button
+                  className="refine-btn"
+                  onClick={() => setRefineKey(refineKey === `d${d.id}` ? null : `d${d.id}`)}
+                  disabled={running}
+                >
+                  {t.refineBtn}
+                </button>
+                {refineKey === `d${d.id}` && (
+                  <div className="refine-opts">
+                    {t.refineOptions.map((opt) => (
+                      <button key={opt} className="refine-opt" onClick={() => refineDraft(d, opt)}>
+                        {opt}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
           ))}
         </Panel>
@@ -690,6 +725,24 @@ export default function App() {
                   <div className="report-tldr">{u.content.next}</div>
                 </div>
               )}
+              <div className="refine">
+                <button
+                  className="refine-btn"
+                  onClick={() => setRefineKey(refineKey === `u${u.id}` ? null : `u${u.id}`)}
+                  disabled={running}
+                >
+                  {t.refineBtn}
+                </button>
+                {refineKey === `u${u.id}` && (
+                  <div className="refine-opts">
+                    {t.refineOptions.map((opt) => (
+                      <button key={opt} className="refine-opt" onClick={() => refineUpdate(u, opt)}>
+                        {opt}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
           ))}
         </section>
